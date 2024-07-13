@@ -12,8 +12,9 @@ winget install Git.Git
 Write-Output "Installing NerdFonts version of Cascadia Code & Cascadia Mono..."
 cd cache
 if (!(Test-Path -Path ./nerd-fonts)) {
-    Write-Output "NerdFonts git already cloned. If you want to update it, do it manually."
     git clone --depth 1 https://github.com/ryanoasis/nerd-fonts nerd-fonts
+} else {
+    Write-Output "NerdFonts git already cloned. If you want to update it, do it manually."
 }
 cd nerd-fonts
 ./install.ps1 CascadiaCode, CascadiaMono
