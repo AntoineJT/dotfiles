@@ -1,4 +1,3 @@
-# TODO ask for terminal root dir and set it in the environment variable
 # TODO ask for image to use for winfetch
 # TODO copy files in <sysname> to home directory
 
@@ -51,3 +50,7 @@ $settingsJson.actions += @{
     "keys" = $WINTERM_QUAKE_MODE_KEY
 }
 $settingsJson | ConvertTo-Json -Depth 32 | Set-Content $WINTERM_SETTINGS_PATH
+
+# prompt user for its terminal root directory
+$terminalRootDir = Read-Host -Prompt "What should be your terminal root directory? (ex: C:\)"
+[Environment]::SetEnvironmentVariable('TERMINAL_ROOT_DIR', $terminalRootDir, 'User')
