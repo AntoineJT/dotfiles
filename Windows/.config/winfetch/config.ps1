@@ -12,7 +12,7 @@ $image = "~/.config/winfetch/image.png"
 
 # Specify width for image/logo
 # $imgwidth = 24
-$imgwidth = 18
+$imgwidth = 24
 
 # Specify minimum alpha value for image pixels to be visible
 # $alphathreshold = 50

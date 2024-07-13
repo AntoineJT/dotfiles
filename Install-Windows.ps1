@@ -54,7 +54,7 @@ $terminalRootDir = Read-Host -Prompt "What should be your terminal root director
 [Environment]::SetEnvironmentVariable('TERMINAL_ROOT_DIR', $terminalRootDir, 'User')
 
 # prompt user for its winfetch image
-$winfetchImage = Read-Host -Prompt "Winfetch PNG image path? (recommended max: 32x32)"
+$winfetchImage = Read-Host -Prompt "Winfetch PNG image path? (will be resized to 24x24 on display)"
 Copy-Item $winfetchImage -Destination $WINFETCH_IMAGE_PATH
 
 # copy config files from Windows folder to user home folder
