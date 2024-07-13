@@ -1,4 +1,3 @@
-# TODO configure terminal for quake mode using ² key as trigger
 # TODO ask for terminal root dir and set it in the environment variable
 # TODO ask for image to use for winfetch
 # TODO copy files in <sysname> to home directory
@@ -38,5 +37,13 @@ $settingsJson.profiles.defaults = @{
     "font" = @{
         "face" = "CaskaydiaCove Nerd Font Mono"
     }
+}
+# setup quake mode on ² key press
+$settingsJson.actions += @{
+    "command" = @{
+        "action" = "globalSummon"
+        "name" = "_quake"
+    }
+    "keys" = "²"
 }
 $settingsJson | ConvertTo-Json -Depth 32 | Set-Content $WINTERM_SETTINGS_PATH
