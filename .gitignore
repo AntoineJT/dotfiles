@@ -1,0 +1,3 @@
+# keep cache folder but not its content
+cache/*
+!cache/.gitkeep
