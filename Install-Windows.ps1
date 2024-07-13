@@ -1,5 +1,3 @@
-# TODO copy files in <sysname> to home directory
-
 $WINFETCH_IMAGE_PATH = "~/.config/winfetch/image.png"
 $WINTERM_QUAKE_MODE_KEY = "²"
 $WINTERM_SETTINGS_PATH = "$Env:LocalAppData\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
@@ -58,3 +56,7 @@ $terminalRootDir = Read-Host -Prompt "What should be your terminal root director
 # prompt user for its winfetch image
 $winfetchImage = Read-Host -Prompt "Winfetch PNG image path? (recommended max: 32x32)"
 Copy-Item $winfetchImage -Destination $WINFETCH_IMAGE_PATH
+
+# copy config files from Windows folder to user home folder
+Write-Output "Copying configuration files to your home folder..."
+Copy-Item -Path Windows\* -Destination ~ -Recurse -Force
