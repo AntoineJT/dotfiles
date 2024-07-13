@@ -20,7 +20,6 @@ cd nerd-fonts
 cd ../..
 
 # install Oh My Posh
-winget update
 winget install JanDeDobbeleer.OhMyPosh -s winget
 
 # install Terminal-Icons
