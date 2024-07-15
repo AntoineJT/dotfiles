@@ -1,3 +1,5 @@
+# TODO setup terminal as startup process
+
 $WINFETCH_IMAGE_PATH = "~/.config/winfetch/image.png"
 $WINTERM_QUAKE_MODE_KEY = "²"
 $WINTERM_SETTINGS_PATH = "$Env:LocalAppData\Packages\Microsoft.WindowsTerminal_8wekyb3d8bbwe\LocalState\settings.json"
@@ -50,8 +52,8 @@ $settingsJson.actions += @{
 $settingsJson | ConvertTo-Json -Depth 32 | Set-Content $WINTERM_SETTINGS_PATH
 
 # prompt user for its terminal root directory
-$terminalRootDir = Read-Host -Prompt "What should be your terminal root directory? (ex: C:\)"
-[Environment]::SetEnvironmentVariable('TERMINAL_ROOT_DIR', $terminalRootDir, 'User')
+$terminalRootDir = Read-Host -Prompt "What should be your powershell startup directory? (ex: C:\)"
+[Environment]::SetEnvironmentVariable('PS_STARTUP_DIR', $terminalRootDir, 'User')
 
 # prompt user for its winfetch image
 $winfetchImage = Read-Host -Prompt "Winfetch PNG image path? (will be resized to 24x24 on display)"

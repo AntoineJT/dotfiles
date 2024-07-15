@@ -8,4 +8,4 @@ Import-Module -Name Terminal-Icons
 oh-my-posh init pwsh --config $Env:POSH_THEMES_PATH/half-life.omp.json | Invoke-Expression
 
 # change directory to terminal root dir
-Set-Location -Path $Env:TERMINAL_ROOT_DIR
+Set-Location -Path $Env:PS_STARTUP_DIR
