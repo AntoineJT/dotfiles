@@ -90,14 +90,19 @@
     packages = with pkgs; [
     #  thunderbird
       discord
+      keepassxc
       git
       libgcc
       rustup
+      jetbrains.rust-rover
     ];
   };
 
   # Install firefox.
   programs.firefox.enable = true;
+
+  # Add noise reduction program
+  programs.noisetorch.enable = true;
 
   # Allow unfree packages
   nixpkgs.config.allowUnfree = true;
@@ -106,11 +111,16 @@
   # $ nix search wget
   environment.systemPackages = with pkgs; [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    gnomeExtensions.appindicator
   #  wget
   ];
 
   environment.gnome.excludePackages = with pkgs; [
     epiphany # web browser
+  ];
+
+  services.udev.packages = with pkgs; [
+    gnome.gnome-settings-daemon
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
