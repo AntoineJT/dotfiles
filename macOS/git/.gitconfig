@@ -1,0 +1,23 @@
+[user]
+name = Antoine James Tournepiche
+email = antoinejt.serveur@gmail.com
+
+[core]
+excludesFile = ~/.gitignore_global
+
+[pager]
+diff = riff
+show = riff
+log = riff
+
+[interactive]
+diffFilter = riff
+
+[pull]
+ff = only
+
+[rerere]
+enabled = true
+
+[include]
+path = ~/.gitconfig_enterprise
