@@ -8,7 +8,8 @@ source $ZSH/oh-my-zsh.sh
 export GPG_TTY=$(tty)
 
 # Aliases
-alias brew-rebuild="brew update && brew bundle install --file ~/.config/brew/Brewfile --cleanup && brew upgrade"
+# TODO allow to select brewfiles to use
+alias brew-rebuild="brew update && cat ~/.config/brew/Brewfile-* | brew bundle install --file=- --cleanup && brew upgrade"
 
 # Overrides
 alias cat="bat --paging=never"
