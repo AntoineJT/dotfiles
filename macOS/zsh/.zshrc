@@ -23,3 +23,6 @@ alias ocat="/bin/cat"
 alias odiff="/usr/bin/diff"
 alias ovi="/usr/bin/vi"
 alias ovim="/usr/bin/vim"
+
+# Load enterprise zshrc if it exists
+[ -f ~/.zshrc_enterprise ] && source ~/.zshrc_enterprise
