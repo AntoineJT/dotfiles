@@ -61,4 +61,4 @@ Copy-Item $winfetchImage -Destination $WINFETCH_IMAGE_PATH
 
 # copy config files from Windows folder to user home folder
 Write-Output "Copying configuration files to your home folder..."
-Copy-Item -Path Windows\* -Destination ~ -Recurse -Force
+Copy-Item -Path HOME\* -Destination ~ -Recurse -Force
