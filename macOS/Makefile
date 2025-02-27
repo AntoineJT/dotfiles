@@ -3,6 +3,8 @@
 all:
 	command -v stow >/dev/null 2>&1 || brew install stow
 	stow --verbose --target=$$HOME --restow */
+	cp doom_white_terminal_bg.jpg ~
 
 delete:
 	stow --verbose --target=$$HOME --delete */
+	rm -f ~/doom_white_terminal_bg.jpg
