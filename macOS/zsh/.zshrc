@@ -26,3 +26,8 @@ alias ovim="/usr/bin/vim"
 
 # Load enterprise zshrc if it exists
 [ -f ~/.zshrc_enterprise ] && source ~/.zshrc_enterprise
+
+# Move to the specified default directory
+if [ $(pwd) = $HOME ]; then
+    cd $ZSH_STARTUP_DIR
+fi
