@@ -1,0 +1,38 @@
+# Appearance
+cask "jordanbaird-ice" # menu bar replacement
+cask "stats" # system monitoring widgets
+
+# Browsers
+cask "firefox" # main browser
+cask "google-chrome" # fallback & website testing browser
+
+# Secrets
+brew "gnupg" # GPG client
+brew "pinentry-mac" # for having GNUPG ask passphrases in a GUI
+cask "keepassxc" # password manager
+
+# Terminal/Shell
+brew "zsh" # shell
+cask "font-fira-code-nerd-font" # patched font for terminal
+cask "wezterm" # terminal emulator
+
+# Dev Tools
+brew "git" # version control
+brew "neovim" # TUI text editor
+brew "libpq" # needed for dbeaver to dump/restore pgsql db
+brew "volta" # node version manager
+cask "bruno" # postman alternative
+cask "dbeaver-community" # database client
+cask "fork" # GUI git client
+cask "rancher" # for docker CLI
+cask "visual-studio-code" # GUI text editor
+
+# Documentation/Notes Tools
+cask "drawio" # diagram editor
+cask "obsidian" # personal notes
+
+# Utilities
+brew "bat" # enhanced cat
+brew "riff" # enhanced diff
+brew "stow" # symlink manager
+cask "hammerspoon" # macOS automation tool
