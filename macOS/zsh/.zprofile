@@ -14,6 +14,3 @@ fi
 if [ $(pwd) = $HOME ]; then
     cd $ZSH_STARTUP_DIR
 fi
-
-# alias to open Fork with env vars
-alias gitfork="open -a Fork"

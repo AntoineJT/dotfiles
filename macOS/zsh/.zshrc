@@ -10,6 +10,7 @@ export GPG_TTY=$(tty)
 # Aliases
 # TODO allow to select brewfiles to use
 alias brew-rebuild="brew update && cat ~/.config/brew/Brewfile-* | brew bundle install --file=- --cleanup && brew upgrade"
+alias gitfork="open -a Fork" # open Fork with env vars
 
 # Overrides
 alias cat="bat --paging=never"
