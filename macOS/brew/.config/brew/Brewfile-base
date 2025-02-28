@@ -12,6 +12,7 @@ brew "pinentry-mac" # for having GNUPG ask passphrases in a GUI
 cask "keepassxc" # password manager
 
 # Terminal/Shell
+brew "starship" # shell prompt
 brew "zsh" # shell
 cask "font-fira-code-nerd-font" # patched font for terminal
 cask "wezterm" # terminal emulator

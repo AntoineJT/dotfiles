@@ -29,3 +29,6 @@ alias ovim="/usr/bin/vim"
 
 # Move to the specified default directory
 [ $(pwd) = $HOME ] && cd $ZSH_STARTUP_DIR
+
+# Load starship shell prompt
+eval "$(starship init zsh)"
