@@ -1,7 +1,7 @@
 # Oh My Zsh configuration
 export ZSH="$HOME/.oh-my-zsh"
 ZSH_THEME="arrow" # See https://github.com/ohmyzsh/ohmyzsh/wiki/Themes
-plugins=(git dotenv docker kubectl common-aliases helm jira otp colorize)
+plugins=(gitfast docker colorize)
 source $ZSH/oh-my-zsh.sh
 
 # Give current TTY to GPG for passphrase prompt
