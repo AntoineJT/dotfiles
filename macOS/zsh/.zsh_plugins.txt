@@ -2,3 +2,9 @@
 # Use CTRL+Space to accept the autosuggestion
 # (as configured in .zshrc)
 zsh-users/zsh-autosuggestions
+
+# Syntax highlighting for Zsh
+zsh-users/zsh-syntax-highlighting
+
+# Fish-like history search
+zsh-users/zsh-history-substring-search

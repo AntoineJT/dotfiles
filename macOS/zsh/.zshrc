@@ -18,8 +18,11 @@ alias odiff="/usr/bin/diff"
 alias ovi="/usr/bin/vi"
 alias ovim="/usr/bin/vim"
 
-# Accept autosuggest with ctrl+space
+# zsh-autosuggestions: Accept autosuggest with ctrl+space
 bindkey '^ ' autosuggest-accept
+# zsh-history-substring-search: Use up and down arrows to search history
+bindkey '^[[A' history-substring-search-up
+bindkey '^[[B' history-substring-search-down
 
 # Load enterprise zshrc if it exists
 [ -f ~/.zshrc_enterprise ] && source ~/.zshrc_enterprise
