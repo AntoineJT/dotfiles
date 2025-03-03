@@ -1,9 +1,3 @@
-# Oh My Zsh configuration
-export ZSH="$HOME/.oh-my-zsh"
-ZSH_THEME="" # disable theme, as starship is used
-plugins=(gitfast docker)
-source $ZSH/oh-my-zsh.sh
-
 # Give current TTY to GPG for passphrase prompt
 export GPG_TTY=$(tty)
 
@@ -24,11 +18,18 @@ alias odiff="/usr/bin/diff"
 alias ovi="/usr/bin/vi"
 alias ovim="/usr/bin/vim"
 
+# Accept autosuggest with ctrl+space
+bindkey '^ ' autosuggest-accept
+
 # Load enterprise zshrc if it exists
 [ -f ~/.zshrc_enterprise ] && source ~/.zshrc_enterprise
 
 # Move to the specified default directory
 [ $(pwd) = $HOME ] && cd $ZSH_STARTUP_DIR
+
+# Load zsh plugins
+source $(brew --prefix)/opt/antidote/share/antidote/antidote.zsh
+antidote load
 
 # Load starship shell prompt
 eval "$(starship init zsh)"
