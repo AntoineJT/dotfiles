@@ -35,6 +35,7 @@ cask "obsidian" # personal notes
 
 # Utilities
 brew "bat" # enhanced cat
+brew "fzf" # fuzzy finder, used in zsh cfg
 brew "riff" # enhanced diff
 brew "stow" # symlink manager
 cask "hammerspoon" # macOS automation tool

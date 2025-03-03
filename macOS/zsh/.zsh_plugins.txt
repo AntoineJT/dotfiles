@@ -1,6 +1,7 @@
-# Completions
+# Tab completions
 mattmc3/ez-compinit # setup zsh compinit
 zsh-users/zsh-completions kind:fpath path:src
+Aloxaf/fzf-tab # Use fuzzy finder for tab completion
 
 # History configuration
 belak/zsh-utils path:history
