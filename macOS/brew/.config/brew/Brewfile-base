@@ -34,8 +34,8 @@ cask "drawio" # diagram editor
 cask "obsidian" # personal notes
 
 # Utilities
-brew "bat" # enhanced cat
+brew "bat" # enhanced cat, aliased in zsh cfg
 brew "fzf" # fuzzy finder, used in zsh cfg
-brew "riff" # enhanced diff
-brew "stow" # symlink manager
-cask "hammerspoon" # macOS automation tool
+brew "riff" # enhanced diff, aliased in zsh cfg
+brew "stow" # symlink manager, used by dotfiles
+cask "hammerspoon" # macOS automation tool, used by dotfiles
