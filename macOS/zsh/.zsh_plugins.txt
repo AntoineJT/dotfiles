@@ -2,6 +2,9 @@
 mattmc3/ez-compinit # setup zsh compinit
 zsh-users/zsh-completions kind:fpath path:src
 
+# History configuration
+belak/zsh-utils path:history
+
 # Fish-like autosuggestions
 # Use CTRL+Space to accept the autosuggestion
 # (as configured in .zshrc)

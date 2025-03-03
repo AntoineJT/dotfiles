@@ -34,5 +34,9 @@ bindkey '^[[B' history-substring-search-down
 source $(brew --prefix)/opt/antidote/share/antidote/antidote.zsh
 antidote load
 
+# History settings
+# (enforce default over history plugin)
+HISTFILE=~/.zsh_history
+
 # Load starship shell prompt
 eval "$(starship init zsh)"
