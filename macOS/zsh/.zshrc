@@ -4,6 +4,7 @@ export GPG_TTY=$(tty)
 # Aliases
 # TODO allow to select brewfiles to use
 alias brew-rebuild="brew update && cat ~/.config/brew/Brewfile-* | brew bundle install --file=- --cleanup && brew upgrade"
+alias lsa="ls -aho --color=always"
 alias run-fork="open -a Fork" # open Fork with env vars
 
 # Overrides
