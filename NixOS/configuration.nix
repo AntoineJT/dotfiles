@@ -88,13 +88,14 @@
     description = "antoinejt";
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
-    #  thunderbird
       discord
       keepassxc
       git
       libgcc
       rustup
-      jetbrains.rust-rover
+      vscodium
+      prismlauncher
+      gnumake
     ];
   };
 
