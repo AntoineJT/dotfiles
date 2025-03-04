@@ -4,7 +4,7 @@ cask "stats" # system monitoring widgets
 
 # Browsers
 cask "firefox" # main browser
-cask "google-chrome" # fallback & website testing browser
+cask "eloston-chromium" # fallback & website testing browser
 
 # Secrets
 brew "gnupg" # GPG client
