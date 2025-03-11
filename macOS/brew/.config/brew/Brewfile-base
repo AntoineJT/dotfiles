@@ -3,8 +3,8 @@ cask "jordanbaird-ice" # menu bar replacement
 cask "stats" # system monitoring widgets
 
 # Browsers
-cask "firefox" # main browser
 cask "eloston-chromium" # fallback & website testing browser
+cask "firefox" # main browser
 
 # Secrets
 brew "gnupg" # GPG client
@@ -20,8 +20,8 @@ cask "wezterm" # terminal emulator
 
 # Dev Tools
 brew "git" # version control
-brew "neovim" # TUI text editor
 brew "libpq" # needed for dbeaver to dump/restore pgsql db
+brew "neovim" # TUI text editor
 brew "volta" # node version manager
 cask "bruno" # postman alternative
 cask "dbeaver-community" # database client
