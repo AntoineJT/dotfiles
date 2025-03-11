@@ -7,8 +7,6 @@ Aloxaf/fzf-tab # Use fuzzy finder for tab completion
 belak/zsh-utils path:history
 
 # Fish-like autosuggestions
-# Use CTRL+Space to accept the autosuggestion
-# (as configured in .zshrc)
 zsh-users/zsh-autosuggestions
 
 # Syntax highlighting for Zsh
