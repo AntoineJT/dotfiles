@@ -1,0 +1,1 @@
+../../../../macOS/wezterm/.config/wezterm/wezterm.lua

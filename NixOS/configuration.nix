@@ -27,6 +27,11 @@
     LC_TIME = "fr_FR.UTF-8";
   };
 
+  fonts.packages = with pkgs; [
+    (nerdfonts.override { fonts = [ "FiraCode" ]; })
+    fira-code
+  ];
+
   services.xserver.enable = true;
   services.xserver.dpi = 180;
   services.xserver.displayManager.gdm.enable = true;
@@ -63,6 +68,8 @@
       vscodium
       prismlauncher
       gnumake
+      wezterm
+      stow
     ];
   };
 
@@ -73,6 +80,7 @@
   environment.systemPackages = with pkgs; [
     vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
     gnomeExtensions.appindicator
+    neovim
   ];
 
   environment.gnome.excludePackages = with pkgs; [
