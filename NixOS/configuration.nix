@@ -67,7 +67,6 @@
   };
 
   programs.firefox.enable = true;
-  programs.noisetorch.enable = true;
 
   nixpkgs.config.allowUnfree = true;
 
