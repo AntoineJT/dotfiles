@@ -40,6 +40,8 @@
 	<string>mini</string>
 	<key>Clock_sensors_mode</key>
 	<string>automatic</string>
+	<key>Clock_sensors_monospacedFont</key>
+	<false/>
 	<key>Disk_barChart_position</key>
 	<integer>0</integer>
 	<key>Disk_label_position</key>
@@ -83,13 +85,13 @@
 	AAAQ0AAABAAAAAAAAAAX8AAANAAAAAAAAAAi8AAAkAEAAAAAAAA=
 	</data>
 	<key>NSStatusItem Preferred Position Battery_battery</key>
-	<real>283</real>
+	<real>246</real>
 	<key>NSStatusItem Preferred Position CPU_mini</key>
-	<real>521</real>
+	<real>439</real>
 	<key>NSStatusItem Preferred Position Network_speed</key>
-	<real>325</real>
+	<real>321</real>
 	<key>NSStatusItem Preferred Position RAM_mini</key>
-	<real>474</real>
+	<real>392</real>
 	<key>NSStatusItem Restore Position CPU_line_chart</key>
 	<integer>491</integer>
 	<key>NSStatusItem Restore Position Disk_bar_chart</key>
@@ -164,16 +166,16 @@
 	<key>setupProcess</key>
 	<true/>
 	<key>support_ts</key>
-	<integer>1738153753</integer>
+	<integer>1740993514</integer>
 	<key>telemetry</key>
 	<false/>
 	<key>telemetry_id</key>
 	<string>C924F02B-7A9B-460C-9E28-ED56E5BB5B9B</string>
 	<key>update-interval</key>
-	<string>Never</string>
+	<string>Once per day</string>
 	<key>updater_check_ts</key>
-	<integer>1738153753</integer>
+	<integer>1741861930</integer>
 	<key>version</key>
-	<string>2.11.28</string>
+	<string>2.11.34</string>
 </dict>
 </plist>
