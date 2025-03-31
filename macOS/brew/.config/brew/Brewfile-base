@@ -36,6 +36,7 @@ cask "rancher" # for docker CLI
 cask "visual-studio-code" # GUI text editor
 
 # Documentation/Notes Tools
+brew "plantuml" # UML diagram generator (& more)
 brew "structurizr-cli" # C4 model CLI tool
 cask "drawio" # diagram editor
 cask "obsidian" # personal notes
