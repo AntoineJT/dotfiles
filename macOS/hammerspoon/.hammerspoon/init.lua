@@ -1,5 +1,6 @@
 local WEZTERM_BUNDLE_ID = 'com.github.wez.wezterm'
 local FIREFOX_BUNDLE_ID = 'org.mozilla.firefox'
+local VSCODE_BUNDLE_ID = 'com.microsoft.VSCode'
 
 local AppOpener = require('AppOpener')
 
@@ -13,6 +14,11 @@ spoon.HoldToQuit:start()
 -- Show/hide Wezterm with OPT+Space
 hs.hotkey.bind({'option'}, 'space', function () 
     AppOpener.showHide(WEZTERM_BUNDLE_ID, 1)
+end)
+
+-- Show/hide VSCode with OPT+V
+hs.hotkey.bind({'option'}, 'v', function ()
+    AppOpener.showHide(VSCODE_BUNDLE_ID, 1)
 end)
 
 -- Show/hide Firefox with OPT+F
