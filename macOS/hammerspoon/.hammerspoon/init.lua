@@ -12,12 +12,12 @@ spoon.HoldToQuit:start()
 -- "Dropdown mode" for Wezterm
 -- Show/hide Wezterm with OPT+Space
 hs.hotkey.bind({'option'}, 'space', function () 
-    AppOpener.showHide(WEZTERM_BUNDLE_ID)
+    AppOpener.showHide(WEZTERM_BUNDLE_ID, 1)
 end)
 
 -- Show/hide Firefox with OPT+F
 hs.hotkey.bind({'option'}, 'f', function ()
-    AppOpener.showHide(FIREFOX_BUNDLE_ID)
+    AppOpener.showHide(FIREFOX_BUNDLE_ID, 2)
 end)
 
 -- TODO exclude wezterm from alt-tab

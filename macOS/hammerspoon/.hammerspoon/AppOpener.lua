@@ -16,7 +16,7 @@ local function tryToMaxWindow(hs, window)
     window:maximize()
 end
 
-function module.showHide(appBundleId)
+function module.showHide(appBundleId, openingDelay)
     local app = hs.application.get(appBundleId)
 
     -- if app not opened yet, open it
@@ -41,8 +41,8 @@ function module.showHide(appBundleId)
         return
     end
 
-    -- app not opened, wait for 1s before trying to maximize
-    hs.timer.doAfter(1, function ()
+    -- app not opened, wait for 'openingDelay' seconds before trying to maximize
+    hs.timer.doAfter(openingDelay, function ()
         tryToMaxWindow(hs, app:mainWindow())
     end)
 end
