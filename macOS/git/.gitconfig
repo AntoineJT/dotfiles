@@ -4,6 +4,7 @@ email = antoinejt.serveur@gmail.com
 
 [core]
 excludesFile = ~/.gitignore_global
+ignoreCase = true
 
 [pager]
 diff = riff
