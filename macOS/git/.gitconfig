@@ -19,5 +19,8 @@ ff = only
 [rerere]
 enabled = true
 
+[alias]
+pushf = "push --force-with-lease"
+
 [include]
 path = ~/.gitconfig_enterprise
