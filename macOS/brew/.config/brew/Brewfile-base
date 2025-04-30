@@ -24,7 +24,11 @@ brew "zsh" # shell
 cask "font-fira-code-nerd-font" # patched font for terminal
 cask "wezterm" # terminal emulator
 
-# Dev Tools
+# Docker
+brew "dive" # docker tool for analyzing and optimizing images
+cask "rancher" # for docker CLI
+
+# Other Dev Tools
 brew "git" # version control
 brew "libpq" # needed for dbeaver to dump/restore pgsql db
 brew "neovim" # TUI text editor
@@ -32,7 +36,6 @@ brew "volta" # node version manager
 cask "bruno" # postman alternative
 cask "dbeaver-community" # database client
 cask "fork" # GUI git client
-cask "rancher" # for docker CLI
 cask "visual-studio-code" # GUI text editor
 
 # Documentation/Notes Tools
