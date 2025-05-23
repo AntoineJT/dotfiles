@@ -5,6 +5,9 @@ cask "wine-stable" # needs rosetta2
 # TODO enforce rosetta2 installation in Makefile?
 # TODO setup test MacOS VM? (in container?)
 
+# Audio
+cask "deezer" # music streaming service
+
 # Appearance
 cask "jordanbaird-ice" # menu bar replacement
 cask "stats" # system monitoring widgets
