@@ -40,5 +40,8 @@ antidote load
 # (enforce default over history plugin)
 HISTFILE=~/.zsh_history
 
+# Activate mise package manager
+eval "$(mise activate zsh)"
+
 # Load starship shell prompt
 eval "$(starship init zsh)"
