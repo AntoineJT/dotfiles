@@ -5,14 +5,14 @@ cask "wine-stable" # needs rosetta2
 # TODO enforce rosetta2 installation in Makefile?
 # TODO setup test MacOS VM? (in container?)
 
+# Appearance
+cask "jordanbaird-ice" # menu bar replacement
+cask "stats" # system monitoring widgets
+
 # Audio
 cask "deezer" # music streaming service
 cask "eqmac"  # system-wide equalizer, conflict with background-music
 # TODO deep dive into the blackhole-2ch + camilladsp solution instead of eqmac
-
-# Appearance
-cask "jordanbaird-ice" # menu bar replacement
-cask "stats" # system monitoring widgets
 
 # Browsers
 cask "eloston-chromium" # fallback & website testing browser
