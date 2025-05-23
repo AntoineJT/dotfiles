@@ -7,6 +7,8 @@ cask "wine-stable" # needs rosetta2
 
 # Audio
 cask "deezer" # music streaming service
+cask "eqmac"  # system-wide equalizer, conflict with background-music
+# TODO deep dive into the blackhole-2ch + camilladsp solution instead of eqmac
 
 # Appearance
 cask "jordanbaird-ice" # menu bar replacement
