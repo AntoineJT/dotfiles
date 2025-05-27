@@ -17,6 +17,9 @@ diffFilter = riff
 [pull]
 ff = only
 
+[push]
+autoSetupRemote = true
+
 [rerere]
 enabled = true
 
