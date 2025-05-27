@@ -30,10 +30,6 @@ brew "zsh" # shell
 cask "font-fira-code-nerd-font" # patched font for terminal
 cask "wezterm" # terminal emulator
 
-# Programming Language & Toolchain Version Managers
-brew "mise" # universal version manager for multiple languages (asdf alternative)
-brew "volta"  # JS toolchain manager, alternative to nvm
-
 # Docker
 brew "dive" # docker tool for analyzing and optimizing images
 cask "rancher" # for docker CLI
@@ -41,6 +37,7 @@ cask "rancher" # for docker CLI
 # Other Dev Tools
 brew "git" # version control
 brew "libpq" # needed for dbeaver to dump/restore pgsql db
+brew "mise" # universal version manager for multiple languages (asdf alternative)
 brew "neovim" # TUI text editor
 cask "bruno" # postman alternative
 cask "dbeaver-community" # database client
