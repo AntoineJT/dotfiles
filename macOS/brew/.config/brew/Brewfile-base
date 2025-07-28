@@ -15,8 +15,8 @@ cask "eqmac"  # system-wide equalizer, conflict with background-music
 # TODO deep dive into the blackhole-2ch + camilladsp solution instead of eqmac
 
 # Browsers
-cask "eloston-chromium" # fallback & website testing browser
 cask "firefox" # main browser
+cask "ungoogled-chromium" # fallback & website testing browser
 
 # Secrets
 brew "gnupg" # GPG client
