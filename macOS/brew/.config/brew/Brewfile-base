@@ -1,5 +1,4 @@
 # System
-cask "background-music" # volume mixer/audio device switcher
 cask "wine-stable" # needs rosetta2
 
 # TODO enforce rosetta2 installation in Makefile?
