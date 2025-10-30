@@ -41,6 +41,7 @@ brew "neovim" # TUI text editor
 cask "bruno" # postman alternative
 cask "dbeaver-community" # database client
 cask "fork" # GUI git client
+cask "jetbrains-toolbox" # JetBrains IDE manager
 cask "visual-studio-code" # GUI text editor
 
 # Documentation/Notes Tools
