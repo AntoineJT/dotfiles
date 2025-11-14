@@ -5,7 +5,7 @@ cask "wine-stable" # needs rosetta2
 # TODO setup test MacOS VM? (in container?)
 
 # Appearance
-cask "jordanbaird-ice" # menu bar replacement
+cask "jordanbaird-ice@beta" # menu bar replacement
 cask "stats" # system monitoring widgets
 
 # Audio
