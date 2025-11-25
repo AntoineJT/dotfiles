@@ -28,6 +28,7 @@ enabled = true
 
 [alias]
 pushf = "push --force-with-lease"
+pullf = "pull --ff-only"
 
 [include]
 path = ~/.gitconfig_enterprise
