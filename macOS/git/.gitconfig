@@ -6,6 +6,9 @@ email = antoinejt.serveur@gmail.com
 excludesFile = ~/.gitignore_global
 ignoreCase = true
 
+[init]
+defaultBranch = main
+
 [pager]
 diff = riff
 show = riff
