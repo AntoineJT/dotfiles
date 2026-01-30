@@ -7,10 +7,10 @@
     ];
 
   boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = true;
+  boot.loader.efi.canTouchEfiVariables = false;
 
   networking.hostName = "nixos"; # Define your hostname.
-  networking.networkmanager.enable = true;
+  networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
 
   time.timeZone = "Europe/Paris";
 
@@ -28,17 +28,15 @@
   };
 
   fonts.packages = with pkgs; [
-    (nerdfonts.override { fonts = [ "FiraCode" ]; })
-    fira-code
+    nerd-fonts.fira-code
   ];
 
   services.xserver.enable = true;
-  services.xserver.dpi = 180;
-  services.xserver.displayManager.gdm.enable = true;
-  services.xserver.desktopManager.gnome.enable = true;
+  services.displayManager.sddm.enable = true;
+  services.desktopManager.plasma6.enable = true;
   services.xserver.xkb = {
     layout = "fr";
-    variant = "azerty";
+    variant = "";
   };
 
   console.keyMap = "fr";
@@ -46,30 +44,34 @@
   # No CUPS on my system
   services.printing.enable = false;
 
-  hardware.pulseaudio.enable = false;
+  services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    # If you want to use JACK applications, uncomment this
+    #jack.enable = true;
   };
 
-  users.users.antoinejt = {
+  users.users.antoine = {
     isNormalUser = true;
-    description = "antoinejt";
+    description = "antoine";
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
+      # kdePackages.kate
+      # thunderbird
       discord
-      keepassxc
       git
-      libgcc
-      rustup
-      vscodium
-      prismlauncher
       gnumake
-      wezterm
+      keepassxc
+      libgcc
+      prismlauncher
+      rustup
       stow
+      vscodium
+      wezterm
     ];
   };
 
@@ -78,18 +80,36 @@
   nixpkgs.config.allowUnfree = true;
 
   environment.systemPackages = with pkgs; [
-    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-    gnomeExtensions.appindicator
     neovim
+    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
+    # wget
   ];
 
-  environment.gnome.excludePackages = with pkgs; [
-    epiphany # web browser
-  ];
+  # Some programs need SUID wrappers, can be configured further or are
+  # started in user sessions.
+  # programs.mtr.enable = true;
+  # programs.gnupg.agent = {
+  #   enable = true;
+  #   enableSSHSupport = true;
+  # };
 
-  services.udev.packages = with pkgs; [
-    gnome.gnome-settings-daemon
-  ];
+  # List services that you want to enable:
 
-  system.stateVersion = "24.05"; # Don't touch this!
+  # Enable the OpenSSH daemon.
+  # services.openssh.enable = true;
+
+  # Open ports in the firewall.
+  # networking.firewall.allowedTCPPorts = [ ... ];
+  # networking.firewall.allowedUDPPorts = [ ... ];
+  # Or disable the firewall altogether.
+  # networking.firewall.enable = false;
+
+  # This value determines the NixOS release from which the default
+  # settings for stateful data, like file locations and database versions
+  # on your system were taken. It‘s perfectly fine and recommended to leave
+  # this value at the release version of the first install of this system.
+  # Before changing this value read the documentation for this option
+  # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
+  system.stateVersion = "24.05"; # Did you read the comment?
+
 }
