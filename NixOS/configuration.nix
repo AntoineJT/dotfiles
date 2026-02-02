@@ -9,6 +9,8 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = false;
 
+  hardware.bluetooth.enable = true;
+
   networking.hostName = "nixos"; # Define your hostname.
   networking.networkmanager.enable = true;
 
@@ -55,21 +57,25 @@
     #jack.enable = true;
   };
 
+  services.redis.enable = true; # for testing rtdbin
+
   users.users.antoine = {
     isNormalUser = true;
     description = "antoine";
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
-      # kdePackages.kate
-      # thunderbird
       discord
+      # gcc
       git
       gnumake
+      # kdePackages.kate
       keepassxc
       libgcc
+      # mise
       prismlauncher
       rustup
       stow
+      # thunderbird
       vscodium
       wezterm
     ];
