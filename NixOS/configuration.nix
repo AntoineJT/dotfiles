@@ -56,6 +56,7 @@
   }
   console.keyMap = "fr";
 
+
   services.displayManager.sddm.enable = true;
   services.desktopManager.plasma6.enable = true;
 
@@ -67,13 +68,23 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    # If you want to use JACK applications, uncomment this
-    #jack.enable = true;
   };
 
-  services.redis.enable = true; # for testing rtdbin
+  nixpkgs.config.allowUnfree = true;
 
+  services.redis.enable = true; # for testing rtdbin
   virtualisation.docker.enable = true;
+
+  programs = {
+    firefox.enable = true;
+    git.enable = true;
+  }
+
+  environment.systemPackages = with pkgs; [
+    easyeffects # EQ
+    neovim
+    vim
+  ];
 
   users.users.antoine = {
     isNormalUser = true;
@@ -88,6 +99,7 @@
       libgcc
       # mise
       prismlauncher
+      # rquickshare # samsung quick share implementation
       rustup
       stow
       # thunderbird
@@ -95,19 +107,6 @@
       wezterm
     ];
   };
-
-  programs.firefox.enable = true;
-  programs.git.enable = true;
-
-  nixpkgs.config.allowUnfree = true;
-
-  environment.systemPackages = with pkgs; [
-    easyeffects # EQ
-    neovim
-    # rquickshare # samsung quick share implementation
-    vim # Do not forget to add an editor to edit configuration.nix! The Nano editor is also installed by default.
-    # wget
-  ];
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
