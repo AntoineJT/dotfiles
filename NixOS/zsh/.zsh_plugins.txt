@@ -1,1 +1,1 @@
-../../macOS/zsh/.zsh_plugins.txt
+../../common/zsh/.zsh_plugins.txt

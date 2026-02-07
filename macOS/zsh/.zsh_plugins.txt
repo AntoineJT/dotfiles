@@ -1,16 +1,1 @@
-# Tab completions
-mattmc3/ez-compinit # setup zsh compinit
-zsh-users/zsh-completions kind:fpath path:src
-Aloxaf/fzf-tab # Use fuzzy finder for tab completion
-
-# History configuration
-belak/zsh-utils path:history
-
-# Fish-like autosuggestions
-zsh-users/zsh-autosuggestions
-
-# Syntax highlighting for Zsh
-zsh-users/zsh-syntax-highlighting
-
-# Fish-like history search
-zsh-users/zsh-history-substring-search
+../../common/zsh/.zsh_plugins.txt
