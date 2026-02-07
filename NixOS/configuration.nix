@@ -57,7 +57,10 @@
   console.keyMap = "fr";
 
 
-  services.displayManager.sddm.enable = true;
+  services.displayManager.sddm = {
+    enable = true;
+    autoNumlock = true;
+  }
   services.desktopManager.plasma6.enable = true;
 
   # Audio configuration
