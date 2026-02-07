@@ -75,12 +75,18 @@
 
   nixpkgs.config.allowUnfree = true;
 
-  services.redis.enable = true; # for testing rtdbin
-  virtualisation.docker.enable = true;
+  services.redis.servers."".enable = true; # for testing rtdbin
+
+  virtualisation.docker = {
+    # TODO switch to rootless? to podman?
+    enable = true;
+    enableOnBoot = false; # don't autostart docker
+  };
 
   programs = {
     firefox.enable = true;
     git.enable = true;
+    zsh.enable = true;
   };
 
   environment.systemPackages = with pkgs; [
@@ -88,6 +94,8 @@
     neovim
     vim
   ];
+
+  users.defaultUserShell = pkgs.zsh;
 
   users.users.antoine = {
     isNormalUser = true;
