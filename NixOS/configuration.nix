@@ -85,13 +85,18 @@
 
   programs = {
     firefox.enable = true;
+    fzf.fuzzyCompletion = true;
     git.enable = true;
     zsh.enable = true;
   };
 
   environment.systemPackages = with pkgs; [
+    antidote # zsh package manager
+    bat # cat alternative
     easyeffects # EQ
+    eza # ls alternative
     neovim
+    riffdiff # diff alternative
     vim
   ];
 
@@ -108,11 +113,12 @@
       # kdePackages.kate
       keepassxc
       libgcc
-      # mise
+      mise
       prismlauncher
       # rquickshare # samsung quick share implementation
       rustup
-      stow
+      starship # zsh beautiful prompt
+      stow # symlink farm, required by dotfiles
       # thunderbird
       vscodium
       wezterm

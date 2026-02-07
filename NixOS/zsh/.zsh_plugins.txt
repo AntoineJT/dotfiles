@@ -1,0 +1,1 @@
+../../macOS/zsh/.zsh_plugins.txt
