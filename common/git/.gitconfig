@@ -1,0 +1,34 @@
+[user]
+name = Antoine James Tournepiche
+email = antoinejt.serveur@gmail.com
+
+[core]
+excludesFile = ~/.gitignore_global
+ignoreCase = true
+
+[init]
+defaultBranch = main
+
+[pager]
+diff = riff
+show = riff
+log = riff
+
+[interactive]
+diffFilter = riff
+
+[pull]
+ff = only
+
+[push]
+autoSetupRemote = true
+
+[rerere]
+enabled = true
+
+[alias]
+pushf = "push --force-with-lease"
+pullf = "pull --ff-only"
+
+[include]
+path = ~/.gitconfig_enterprise
