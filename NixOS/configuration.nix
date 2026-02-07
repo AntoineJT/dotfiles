@@ -6,47 +6,61 @@
       ./hardware-configuration.nix
     ];
 
-  boot.loader.systemd-boot.enable = true;
-  boot.loader.efi.canTouchEfiVariables = false;
+  boot.loader = {
+    systemd-boot.enable = true;
+    # Other than does not allowing EFI vars edition
+    # the computer I'm running NixOS with is only
+    # booting with Windows' EFI, so I need to manually
+    # hijack the Windows EFI with the one of systemd-boot.
+    # By "manually" I mean editing the partition with rEFInd.
+    # There is no trace of that in this configuration file.
+    efi.canTouchEfiVariables = false;
+  }
 
   hardware.bluetooth.enable = true;
 
-  networking.hostName = "nixos"; # Define your hostname.
-  networking.networkmanager.enable = true;
+  networking = {
+    hostName = "nixos"; # Define your hostname.
+    networkmanager.enable = true;
+  }
 
   time.timeZone = "Europe/Paris";
 
-  i18n.defaultLocale = "fr_FR.UTF-8";
-  i18n.extraLocaleSettings = {
-    LC_ADDRESS = "fr_FR.UTF-8";
-    LC_IDENTIFICATION = "fr_FR.UTF-8";
-    LC_MEASUREMENT = "fr_FR.UTF-8";
-    LC_MONETARY = "fr_FR.UTF-8";
-    LC_NAME = "fr_FR.UTF-8";
-    LC_NUMERIC = "fr_FR.UTF-8";
-    LC_PAPER = "fr_FR.UTF-8";
-    LC_TELEPHONE = "fr_FR.UTF-8";
-    LC_TIME = "fr_FR.UTF-8";
-  };
+  i18n = {
+    defaultLocale = "fr_FR.UTF-8";
+    extraLocaleSettings = {
+      LC_ADDRESS = "fr_FR.UTF-8";
+      LC_IDENTIFICATION = "fr_FR.UTF-8";
+      LC_MEASUREMENT = "fr_FR.UTF-8";
+      LC_MONETARY = "fr_FR.UTF-8";
+      LC_NAME = "fr_FR.UTF-8";
+      LC_NUMERIC = "fr_FR.UTF-8";
+      LC_PAPER = "fr_FR.UTF-8";
+      LC_TELEPHONE = "fr_FR.UTF-8";
+      LC_TIME = "fr_FR.UTF-8";
+    };
+  }
 
   fonts.packages = with pkgs; [
     nerd-fonts.fira-code
   ];
 
-  services.xserver.enable = true;
-  services.displayManager.sddm.enable = true;
-  services.desktopManager.plasma6.enable = true;
-  services.xserver.xkb = {
-    layout = "fr";
-    variant = "";
-  };
+  services.printing.enable = false; # No CUPS on my system: don't need to print and vulnerable
 
+  services.xserver = {
+    enable = true;
+    xkb = {
+      layout = "fr";
+      variant = "";
+    };
+  }
   console.keyMap = "fr";
 
-  # No CUPS on my system
-  services.printing.enable = false;
+  services.displayManager.sddm.enable = true;
+  services.desktopManager.plasma6.enable = true;
 
-  services.pulseaudio.enable = false;
+  # Audio configuration
+  services.pulseaudio.enable = false; # handled by pipewire
   security.rtkit.enable = true;
   services.pipewire = {
     enable = true;
@@ -59,9 +73,7 @@
 
   services.redis.enable = true; # for testing rtdbin
 
-  virtualisation.docker = {
-    enable = true;
-  };
+  virtualisation.docker.enable = true;
 
   users.users.antoine = {
     isNormalUser = true;
@@ -70,7 +82,6 @@
     packages = with pkgs; [
       discord
       # gcc
-      git
       gnumake
       # kdePackages.kate
       keepassxc
@@ -86,6 +97,7 @@
   };
 
   programs.firefox.enable = true;
+  programs.git.enable = true;
 
   nixpkgs.config.allowUnfree = true;
 
