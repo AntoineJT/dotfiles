@@ -59,6 +59,10 @@
 
   services.redis.enable = true; # for testing rtdbin
 
+  virtualisation.docker = {
+    enable = true;
+  };
+
   users.users.antoine = {
     isNormalUser = true;
     description = "antoine";
