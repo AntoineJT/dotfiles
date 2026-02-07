@@ -15,14 +15,14 @@
     # By "manually" I mean editing the partition with rEFInd.
     # There is no trace of that in this configuration file.
     efi.canTouchEfiVariables = false;
-  }
+  };
 
   hardware.bluetooth.enable = true;
 
   networking = {
     hostName = "nixos"; # Define your hostname.
     networkmanager.enable = true;
-  }
+  };
 
   time.timeZone = "Europe/Paris";
 
@@ -39,7 +39,7 @@
       LC_TELEPHONE = "fr_FR.UTF-8";
       LC_TIME = "fr_FR.UTF-8";
     };
-  }
+  };
 
   fonts.packages = with pkgs; [
     nerd-fonts.fira-code
@@ -53,14 +53,14 @@
       layout = "fr";
       variant = "";
     };
-  }
+  };
   console.keyMap = "fr";
 
-
+  # Login & DE configuration
   services.displayManager.sddm = {
     enable = true;
     autoNumlock = true;
-  }
+  };
   services.desktopManager.plasma6.enable = true;
 
   # Audio configuration
@@ -81,7 +81,7 @@
   programs = {
     firefox.enable = true;
     git.enable = true;
-  }
+  };
 
   environment.systemPackages = with pkgs; [
     easyeffects # EQ
