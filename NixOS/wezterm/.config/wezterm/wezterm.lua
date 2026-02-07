@@ -1,1 +1,1 @@
-../../../../macOS/wezterm/.config/wezterm/wezterm.lua
+../../../../common/wezterm/.config/wezterm/wezterm.lua
