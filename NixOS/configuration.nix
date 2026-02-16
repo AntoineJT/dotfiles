@@ -17,6 +17,7 @@
     efi.canTouchEfiVariables = false;
   };
 
+  hardware.amdgpu.initrd.enable = true;
   hardware.bluetooth.enable = true;
 
   networking = {
@@ -71,6 +72,16 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
+    # Should improve sound quality. Is it?
+    extraConfig = {
+      pipewire-pulse = {
+        pulse.properties = {
+          "resample.method" = "soxr-vhq";
+          "default.fragments" = "5";
+          "default.fragment.msec" = "2";
+        };
+      };
+    };
   };
 
   nixpkgs.config.allowUnfree = true;
@@ -87,11 +98,13 @@
     firefox.enable = true;
     fzf.fuzzyCompletion = true;
     git.enable = true;
+    steam.enable = true;
     zsh.enable = true;
   };
 
   environment.systemPackages = with pkgs; [
     antidote # zsh package manager
+    amdgpu_top # top for amdgpu
     bat # cat alternative
     easyeffects # EQ
     eza # ls alternative
@@ -108,6 +121,7 @@
     extraGroups = [ "networkmanager" "wheel" ];
     packages = with pkgs; [
       discord
+      dive
       # gcc
       gnumake
       # kdePackages.kate
