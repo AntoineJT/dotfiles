@@ -17,9 +17,6 @@ log = riff
 [interactive]
 diffFilter = riff
 
-[pull]
-ff = only
-
 [push]
 autoSetupRemote = true
 
