@@ -97,6 +97,7 @@
   programs = {
     firefox.enable = true;
     fzf.fuzzyCompletion = true;
+    gamescope.enable = true;
     git.enable = true;
     steam.enable = true;
     zsh.enable = true;
@@ -124,6 +125,7 @@
       dive
       # gcc
       gnumake
+      heroic
       # kdePackages.kate
       keepassxc
       libgcc
