@@ -72,16 +72,6 @@
     alsa.enable = true;
     alsa.support32Bit = true;
     pulse.enable = true;
-    # Should improve sound quality. Is it?
-    extraConfig = {
-      pipewire-pulse = {
-        pulse.properties = {
-          "resample.method" = "soxr-vhq";
-          "default.fragments" = "5";
-          "default.fragment.msec" = "2";
-        };
-      };
-    };
   };
 
   nixpkgs.config.allowUnfree = true;
