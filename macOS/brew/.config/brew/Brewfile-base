@@ -1,4 +1,5 @@
 # System
+cask "monitorcontrol" # control monitor brightness/contrast/volume
 cask "wine-stable" # needs rosetta2
 
 # TODO enforce rosetta2 installation in Makefile?
