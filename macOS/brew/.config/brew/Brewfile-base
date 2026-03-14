@@ -44,6 +44,7 @@ cask "dbeaver-community" # database client
 cask "fork" # GUI git client
 cask "jetbrains-toolbox" # JetBrains IDE manager
 cask "visual-studio-code" # GUI text editor
+cask "zed" # text editor, great for developing in rust
 
 # Documentation/Notes Tools
 cask "drawio" # diagram editor
@@ -53,6 +54,7 @@ cask "obsidian" # personal notes
 brew "bat" # enhanced cat, aliased in zsh cfg
 brew "eza" # non retro-compatible ls/tree alternative, used in zsh cfg
 brew "fzf" # fuzzy finder, used in zsh cfg
+brew "hyperfine" # for benchmarking cli apps
 brew "riff" # enhanced diff, aliased in zsh cfg
 brew "stow" # symlink manager, used by dotfiles
 cask "hammerspoon" # macOS automation tool, used by dotfiles
