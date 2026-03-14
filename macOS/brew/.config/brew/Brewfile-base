@@ -1,5 +1,6 @@
 # System
 cask "monitorcontrol" # control monitor brightness/contrast/volume
+cask "openmtp" # connect android phone to mac
 cask "wine-stable" # needs rosetta2
 
 # TODO enforce rosetta2 installation in Makefile?
