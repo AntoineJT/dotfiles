@@ -45,3 +45,8 @@ eval "$(mise activate zsh)"
 
 # Load starship shell prompt
 eval "$(starship init zsh)"
+
+# Functions
+function title () {
+    echo -n -e "\033]0;${1:-zsh}\007"
+}
