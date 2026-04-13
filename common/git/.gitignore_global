@@ -1,4 +1,9 @@
 .DS_Store
 
-# for blimp
-/.sysroot
+# for gitlab-ci-local
+**/.gitlab-ci-local/
+**/.gitlab-ci-local-variables.yml
+
+# for testing blimp
+**/.sysroot/
+**/work
