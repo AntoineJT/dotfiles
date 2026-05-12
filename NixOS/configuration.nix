@@ -90,6 +90,7 @@
     gamescope.enable = true;
     git.enable = true;
     steam.enable = true;
+    xwayland.enable = true;
     zsh.enable = true;
   };
 
