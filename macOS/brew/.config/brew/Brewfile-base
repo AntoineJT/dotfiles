@@ -7,13 +7,13 @@ cask "wine-stable" # needs rosetta2
 # TODO setup test MacOS VM? (in container?)
 
 # Appearance
+# TODO replace by thaw? (updated fork)
 cask "jordanbaird-ice@beta" # menu bar replacement
 cask "stats" # system monitoring widgets
 
 # Audio
 cask "deezer" # music streaming service
 cask "eqmac"  # system-wide equalizer, conflict with background-music
-# TODO deep dive into the blackhole-2ch + camilladsp solution instead of eqmac
 
 # Browsers
 cask "firefox" # main browser
@@ -48,7 +48,6 @@ cask "visual-studio-code" # GUI text editor
 cask "zed" # text editor, great for developing in rust
 
 # Documentation/Notes Tools
-cask "drawio" # diagram editor
 cask "obsidian" # personal notes
 
 # Utilities
