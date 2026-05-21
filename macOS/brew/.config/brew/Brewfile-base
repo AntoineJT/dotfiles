@@ -7,9 +7,8 @@ cask "wine-stable" # needs rosetta2
 # TODO setup test MacOS VM? (in container?)
 
 # Appearance
-# TODO replace by thaw? (updated fork)
-cask "jordanbaird-ice@beta" # menu bar replacement
 cask "stats" # system monitoring widgets
+cask "thaw" # menu bar replacement
 
 # Audio
 cask "deezer" # music streaming service
