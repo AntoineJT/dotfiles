@@ -1,3 +1,7 @@
+# Repositories
+tap "homebrew/brew-vulns"
+tap "TheBoredTeam/boring-notch"
+
 # System
 cask "monitorcontrol" # control monitor brightness/contrast/volume
 cask "openmtp" # connect android phone to mac
@@ -9,6 +13,7 @@ cask "wine-stable" # needs rosetta2
 # Appearance
 cask "stats" # system monitoring widgets
 cask "thaw" # menu bar replacement
+cask "TheBoredTeam/boring-notch/boring-notch" # notch "dynamic island"
 
 # Audio
 cask "deezer" # music streaming service
@@ -18,8 +23,9 @@ cask "eqmac"  # system-wide equalizer, conflict with background-music
 cask "firefox" # main browser
 cask "ungoogled-chromium" # fallback & website testing browser
 
-# Secrets
+# Secrets/Security
 brew "gnupg" # GPG client
+brew "homebrew/brew-vulns/brew-vulns" # brew vulns subcommand
 brew "pinentry-mac" # for having GNUPG ask passphrases in a GUI
 cask "keepassxc" # password manager
 
