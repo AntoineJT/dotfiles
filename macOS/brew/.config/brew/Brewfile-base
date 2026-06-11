@@ -1,6 +1,6 @@
 # Repositories
 tap "homebrew/brew-vulns"
-tap "TheBoredTeam/boring-notch"
+# tap "TheBoredTeam/boring-notch"
 
 # System
 cask "monitorcontrol" # control monitor brightness/contrast/volume
@@ -13,7 +13,8 @@ cask "wine-stable" # needs rosetta2
 # Appearance
 cask "stats" # system monitoring widgets
 cask "thaw" # menu bar replacement
-cask "TheBoredTeam/boring-notch/boring-notch" # notch "dynamic island"
+# NOTE to retry later, when deezer will be supported
+# cask "TheBoredTeam/boring-notch/boring-notch" # notch "dynamic island"
 
 # Audio
 cask "deezer" # music streaming service
