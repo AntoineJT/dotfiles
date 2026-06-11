@@ -1,6 +1,9 @@
 # Give current TTY to GPG for passphrase prompt
 export GPG_TTY=$(tty)
 
+# Add user local bins to PATH
+export PATH="$HOME/.local/bin:$PATH"
+
 # Aliases
 # TODO allow to select brewfiles to use
 alias brew-refill="([ -f ~/.config/brew/Brewfile-base ] || (echo 'Missing base brewfile, aborting...' && exit 1)) && brew update && ocat ~/.config/brew/Brewfile-* | brew bundle install --file=- --force-cleanup && brew upgrade"
