@@ -1,5 +1,8 @@
 .DS_Store
 
+# for translated ADRs
+**/docs/adr-fr/
+
 # for gitlab-ci-local
 **/.gitlab-ci-local/
 **/.gitlab-ci-local-variables.yml
