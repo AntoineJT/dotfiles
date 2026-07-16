@@ -26,7 +26,7 @@ cask "ungoogled-chromium" # fallback & website testing browser
 
 # Secrets/Security
 brew "gnupg" # GPG client
-brew "homebrew/brew-vulns/brew-vulns" # brew vulns subcommand
+brew "homebrew/brew-vulns/brew-vulns", trusted: true # brew vulns subcommand
 brew "pinentry-mac" # for having GNUPG ask passphrases in a GUI
 cask "keepassxc" # password manager
 
