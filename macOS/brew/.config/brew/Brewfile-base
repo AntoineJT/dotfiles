@@ -62,3 +62,4 @@ brew "hyperfine" # for benchmarking cli apps
 brew "riff" # enhanced diff, aliased in zsh cfg
 brew "stow" # symlink manager, used by dotfiles
 cask "hammerspoon" # macOS automation tool, used by dotfiles
+cask "neodisk" # basically windirstat for macOS
