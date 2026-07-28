@@ -37,7 +37,7 @@ Read options off `$ARGUMENTS`; everything left over is the change to describe. A
 git remote get-url origin     # the host names the forge
 ```
 
-`github.com` (or a GHE host) → **GitHub / `gh`**. `gitlab.com` or a self-hosted GitLab → **GitLab / `glab`**. When the host is ambiguous, probe (`gh repo view` / `glab repo view`) or ask; `--forge=` overrides everything.
+Match the host as a **substring**, not by equality — a remote may carry a service prefix (`git@ssh.gitlab.example.io:…`). `github.` → **GitHub / `gh`**; `gitlab.` → **GitLab / `glab`**. When the host names neither, probe: `gh repo view` in a non-GitHub repo fails with *"none of the git remotes configured for this repository point to a known GitHub host"*, which is itself a usable signal. `--forge=` overrides everything.
 
 Every step below is forge-neutral prose plus this mapping:
 
@@ -54,9 +54,13 @@ Every step below is forge-neutral prose plus this mapping:
 | Draft | `--draft` on create | `--draft` on create (GitLab implements it as a `Draft:` title prefix) |
 | Delete source branch on merge | repo-level (`gh repo edit --delete-branch-on-merge`) or `gh pr merge --delete-branch` — **no per-PR create flag** | `--remove-source-branch` on create |
 | List labels | `gh label list` | `glab label list` |
-| Create label | `gh label create <name> --color <hex> --description …` | `glab label create --name <name> --color <hex> --description …` |
+| Create label | `gh label create <name> --color <rrggbb> --description …` — name is **positional**, colour is 6 hex chars **without `#`**, and gh picks a **random colour** when you omit it, so always pass one | `glab label create --name <name> --color '#rrggbb' --description …` — name is a **flag**, colour takes the leading `#` |
 
-Write the body to a **file** and pass it by path (`--body-file`) or by substitution (`"$(cat …)"`) — never inline a multi-paragraph description in the shell, where quoting and emoji get mangled. When a flag is uncertain, run `<cli> <command> --help` rather than guessing: the two CLIs diverge in naming more than you'd expect.
+Write the body to a **file** and pass it by path (`--body-file`) or by substitution (`"$(cat …)"`) — never inline a multi-paragraph description in the shell, where quoting and emoji get mangled.
+
+⚠️ **`-` means opposite things on the two CLIs.** `gh … --body-file -` reads the body **from stdin**. `glab … --description -` **opens an editor** — which hangs a non-interactive session. So on GitLab always pass the text itself (`--description "$(cat <f>)"`), never `-`; `glab` has no description-from-file flag at all.
+
+When a flag is uncertain, run `<cli> <command> --help` rather than guessing: the two CLIs diverge in naming more than you'd expect (`--body` vs `--description`, positional vs flag label name, `--add-label` vs `--label`).
 
 ## Step 0 — Preconditions
 
