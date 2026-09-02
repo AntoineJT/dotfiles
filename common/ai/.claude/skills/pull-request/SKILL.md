@@ -60,6 +60,14 @@ Write the body to a **file** and pass it by path (`--body-file`) or by substitut
 
 ⚠️ **`-` means opposite things on the two CLIs.** `gh … --body-file -` reads the body **from stdin**. `glab … --description -` **opens an editor** — which hangs a non-interactive session. So on GitLab always pass the text itself (`--description "$(cat <f>)"`), never `-`; `glab` has no description-from-file flag at all.
 
+⚠️ **On GitLab, editing the title of a draft MR un-drafts it — silently.** GitLab has no draft field; it *is* the `Draft: ` title prefix, which the table above notes for creation and which bites hardest on update. `glab mr update <n> --title "…"` therefore replaces the prefix with nothing, reports `✓ updated title to …`, and says not a word about the MR having become reviewable. So when changing a draft's title, **carry the prefix yourself** (`--title "Draft: <new title>"`), then verify — the CLI's success line is not evidence:
+
+```bash
+glab api "projects/:id/merge_requests/<n>" | jq -r .draft   # must print true
+```
+
+**GitHub is not affected**: a PR there has a real `isDraft` boolean, moved with `gh pr ready`, so `gh pr edit --title` leaves the draft state alone. It is a GitLab-only trap, which is what makes it easy to carry the wrong assumption across forges.
+
 When a flag is uncertain, run `<cli> <command> --help` rather than guessing: the two CLIs diverge in naming more than you'd expect (`--body` vs `--description`, positional vs flag label name, `--add-label` vs `--label`).
 
 ## Step 0 — Preconditions
@@ -230,7 +238,7 @@ Read the live PR (see the table) and compare against reality. Update **only what
 
 - 🔁 **Description**: if commits were added since the PR was opened, or sections are stale/missing, regenerate the whole-diff description (Step 2) and push it with the *Update body* command. If it's already accurate, say so and change nothing.
 - 🏷️ **Labels**: add missing fitting labels, remove now-wrong ones — existing labels only; suggest new ones per Step 3.
-- ✏️ **Title**: update only if the scope materially changed.
+- ✏️ **Title**: update only if the scope materially changed. On GitLab, if the MR is a draft, carry the `Draft: ` prefix into the new title and read `.draft` back afterwards — see the warning under the command table; dropping the prefix quietly opens the MR for review.
 
 A rebase is a common reason to re-check: the target may have moved, and description claims about triggers, dependencies or "still in flight" work can go stale even when the diff itself is unchanged.
 
