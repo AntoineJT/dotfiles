@@ -32,6 +32,9 @@ bindkey '^[[B' history-substring-search-down
 # Load enterprise zshrc if it exists
 [ -f ~/.zshrc_enterprise ] && source ~/.zshrc_enterprise
 
+# Load secrets and other non-commitable things (VPS IPs, etc.)
+[ -f ~/.zsh_secrets ] && source ~/.zsh_secrets
+
 # Move to the specified default directory
 [ $(pwd) = $HOME ] && cd $ZSH_STARTUP_DIR
 
