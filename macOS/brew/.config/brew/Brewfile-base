@@ -40,6 +40,7 @@ brew "dive" # docker tool for analyzing and optimizing images
 cask "rancher" # for docker CLI
 
 # Other Dev Tools
+brew "cloc" # count line of code
 brew "git" # version control
 brew "libpq" # needed for dbeaver to dump/restore pgsql db
 brew "mise" # universal version manager for multiple languages (asdf alternative)
