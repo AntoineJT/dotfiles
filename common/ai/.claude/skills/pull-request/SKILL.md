@@ -1,6 +1,6 @@
 ---
 name: pull-request
-description: Open or update a pull/merge request on GitHub (`gh`) or GitLab (`glab`). Detects the forge, always checks for an existing PR first (never duplicates), writes a whole-diff description at a higher altitude than the commits — bilingual 🇬🇧/🇫🇷 by default, configurable with `--lang=<ISO 639-1 codes>` — applies only labels that already exist (suggests new ones but never creates them implicitly), and keeps an existing PR's description in sync. Use when asked to open/create/raise/update a PR/MR/pull request/merge request.
+description: Open or update a pull/merge request on GitHub (`gh`) or GitLab (`glab`). Detects the forge, always checks for an existing PR first (never duplicates), writes a whole-diff description at a higher altitude than the commits — bilingual 🇬🇧/🇫🇷 by default, configurable with `--lang=<ISO 639-1 codes>` — applies only labels that already exist (suggests new ones but never creates them implicitly), offers before/after media and lays it out as paired tables once the user agrees, and keeps an existing PR's description in sync. Use when asked to open/create/raise/update a PR/MR/pull request/merge request.
 allowed-tools: Bash, Read, Grep, Glob
 ---
 
@@ -49,6 +49,7 @@ Every step below is forge-neutral prose plus this mapping:
 | Read one PR | `gh pr view <n> --json title,body,labels,baseRefName,state` | `glab mr view <n> --output json` |
 | Create | `gh pr create --head "$BRANCH" --base "<target>" --title … --body-file <f> --label …` | `glab mr create --source-branch "$BRANCH" --target-branch "<target>" --title … --description "$(cat <f>)" --label … --yes` |
 | Update body | `gh pr edit <n> --body-file <f>` | `glab mr update <n> --description "$(cat <f>)"` |
+| Attach an image | `--attach './shot.png#alt'` on `pr create` / `pr edit` (gh ≥ 2.99.0, not on Enterprise Server) | no flag — `glab api --method POST "projects/:id/uploads" --form "file=@shot.png"`, then reference the returned path |
 | Update title | `gh pr edit <n> --title …` | `glab mr update <n> --title …` |
 | Add / remove label | `gh pr edit <n> --add-label … --remove-label …` | `glab mr update <n> --label … --unlabel …` |
 | Draft | `--draft` on create | `--draft` on create (GitLab implements it as a `Draft:` title prefix) |
@@ -197,6 +198,110 @@ Worked example for the default `--lang=en,fr`:
 **Checklist (to-do items).** Actionable steps the reviewer (or author) still has to *do* — tests to run, manual verifications, follow-up actions — go in a single `## 📋 Checklist` section at the very bottom, preceded by its own `---` separator. Use task boxes (`- [ ]`) so they render as a tickable checklist on both forges. This is distinct from the `✅ tests / validation` bullet under *What's included*, which records what was **already run**; the Checklist is the **still-to-do** list. Omit the whole section when there is nothing left to do.
 
 Prefer a checklist item that is actually **verifiable in this PR's context**. When a claim can only be observed elsewhere (a CI job that only triggers on paths this PR doesn't touch, a stage this branch doesn't reach), say so explicitly rather than writing an item nobody can tick.
+
+### 🖼️ Screenshots, recordings and other media
+
+Not only web UIs. A TUI's before/after is a terminal capture, a desktop client's is a window
+shot, a CLI's is often no picture at all — a fenced block of the two outputs reads better and
+diffs by eye. Pick the medium the artefact actually has: a still where a still shows it, a
+recording where the change is in the motion or in a sequence of keystrokes (both forges render
+MP4/WebM inline), and plain text whenever text suffices. Everything below applies to all three.
+
+**Ask before adding any, and say what you would do.** Media is not free: an honest pair means
+producing *both* states — which for anything interactive costs a run per side — and it lengthens a
+description the reviewer has to scroll past. So the decision is the user's; but a bare "do you
+want screenshots?" hands the judgement back to them, so put your recommendation in the same breath
+and let them answer yes, no, or fewer:
+
+> This changes the tab underline and the row hover, neither of which a reviewer can see without
+> running the branch — I'd add one pair per fix, four in all. Shall I? Each pair costs a capture
+> run on both sides; if you'd rather, the measured values alone in a table carry most of it.
+
+Where the user has already asked for the captures, or a wrapper skill makes them the house rule,
+that consent is given and the question is noise — do not re-ask.
+
+**When you do add them, a picture is not the evidence.** It shows *that* something changed, never
+*what*. The number goes in a table beside it; the picture is what makes a reader trust the number
+enough to read the table. A pair with no measurement beside it is decoration.
+
+**Getting the file into the description.** GitLab has a per-project upload endpoint; the response
+carries a `url` that is a project-relative path, and it only renders inside that project:
+
+```bash
+glab api --method POST "projects/:id/uploads" --form "file=@shot.png" \
+  | python3 -c 'import sys,json; print(json.load(sys.stdin)["url"])'
+# → /uploads/<hash>/shot.png
+```
+
+`:id` is resolved from the git remote, so the call must run **inside the repository**: from
+anywhere else it fails with `Unable to expand placeholder in path: not a git repository`. Keep
+the captures wherever you like and `cd` to the checkout to upload them.
+
+**GitHub does it in the create/edit call itself**, with `--attach` — no upload step, no URL to
+carry around. Generally available since 2026-09-01 and needing **gh 2.99.0 or later**; not yet on
+GitHub Enterprise Server, so check `gh --version` and the host before relying on it.
+
+```bash
+gh pr create --body-file body.md \
+  --attach './before.png#The tab underline before' \
+  --attach './after.png#The tab underline after'
+gh pr edit 123 --attach ./before.png --attach ./after.png   # appends to the existing body
+```
+
+The flag is repeatable, up to **50 files per command**, 10 MB per image; PNG, JPEG, GIF, WebP,
+SVG and the usual video formats. Alt text follows the path after `#`, and without it the filename
+becomes the alt text — so name the files for what they show. If some uploads fail the others
+still land, the command exits non-zero, and the PR's URL is still printed.
+
+**The part that matters for a paired layout**: a reference to the local file already present in
+the body — `![alt](./before.png)` — is **rewritten in place** to point at the uploaded asset. So
+write the body with the table and the local paths, pass one `--attach` per file, and the pair
+lands where you put it instead of being appended in a heap at the bottom. Whether the same
+rewrite applies to an `<img src="./before.png" width="380">` is **not stated in the docs and not
+verified here**: if you need the width control, check it on one file before committing to it, and
+fall back to the markdown form (no width) if it does not.
+
+On GitLab there is no such flag as of `glab` 1.116, so the upload endpoint above stays the way
+and the description references the returned path — re-check with `glab mr create --help` rather
+than trusting this line, since the GitHub flag itself landed only in September 2026.
+
+**Lay a pair out as a two-column table, never as two adjacent `<img>` tags.** Side-by-side tags
+wrap unpredictably at narrow widths, and once they wrap the reader has lost which one is which. A
+table keeps the pairing and the labels welded together:
+
+```markdown
+| Before | After |
+| :---: | :---: |
+| <img src="/uploads/…/before.png" width="380"> | <img src="/uploads/…/after.png" width="380"> |
+```
+
+Use the HTML tag rather than `![](…)`: markdown image syntax cannot set a width, and a full-size
+capture makes the description unreadable. Around 380–420px per cell suits a two-column table; a
+single wide capture can go to 700. **On GitHub this collides with `--attach`**, whose documented
+in-place rewrite covers `![alt](./file.png)` and says nothing about an `<img src>`: if the rewrite
+does not reach the HTML form, you must choose between the width and the placement. Settle it on
+one file, once, and then stop re-deciding — the fallback is markdown syntax inside the table
+cells, which loses the width but keeps the pairing.
+
+Four things that are easy to get wrong:
+
+- **Upload once, reference many times.** With several `--lang` blocks the same upload path is
+  quoted in each; re-uploading gives two hashes for one image and doubles the project's storage.
+- **An unpaired capture gets a one-column table and a sentence.** When a surface exists on only
+  one side — a demo block the PR adds, an error state the fix removes — say the absence was
+  *measured* rather than leaving a half-empty pair the reader reads as a missing file.
+- **A difference of a few pixels must be enlarged before it is uploaded.** A description cannot
+  apply `image-rendering: pixelated`, so crop tightly and upscale with nearest-neighbour
+  (`magick in.png -filter point -resize 800% out.png`, if ImageMagick is there), then say in one
+  line that this is what you did. Any smoothing invents pixels that were never rendered, which in
+  a review is the one thing an image must not do.
+- **A byte-identical pair means one of two opposite things.** Either nothing changed — which is
+  often the finding, and worth stating as one — or you captured the same state twice: the wrong
+  build served, a stale window, a session that never arrived. Check the hashes against a pair you know must differ before believing
+  either reading.
+
+**Read the description back after posting**, images included: a mangled upload path renders as
+broken-image text and nobody tells you.
 
 ### 🐛 Bugfix PRs — the four required beats
 
