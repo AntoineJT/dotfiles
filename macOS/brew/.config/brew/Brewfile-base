@@ -45,8 +45,9 @@ brew "git" # version control
 brew "libpq" # needed for dbeaver to dump/restore pgsql db
 brew "mise" # universal version manager for multiple languages (asdf alternative)
 brew "neovim" # TUI text editor
+brew "sabiql" # TUI DB client
 cask "bruno" # postman alternative
-cask "dbeaver-community" # database client
+cask "dbeaver-community" # GUI DB client
 cask "fork" # GUI git client
 cask "jetbrains-toolbox" # JetBrains IDE manager
 cask "visual-studio-code" # GUI text editor
