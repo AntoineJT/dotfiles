@@ -11,6 +11,8 @@ export PATH="$(brew --prefix libpq)/bin:$PATH"
 # TODO allow to select brewfiles to use
 alias brew-refill="([ -f ~/.config/brew/Brewfile-base ] || (echo 'Missing base brewfile, aborting...' && exit 1)) && brew update && ocat ~/.config/brew/Brewfile-* | brew bundle install --file=- --force-cleanup && brew upgrade"
 alias lsa="ls -aho --color=always"
+alias rancher_size="du -h ~/Library/Application\ Support/rancher-desktop/lima/0/diffdisk"
+alias rancher_trim="rdctl shell sudo fstrim -v /mnt/data"
 alias run-fork="open -a Fork" # open Fork with env vars
 alias tree="eza --tree"
 
