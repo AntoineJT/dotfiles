@@ -9,6 +9,9 @@ belak/zsh-utils path:history
 # Fish-like autosuggestions
 zsh-users/zsh-autosuggestions
 
+# Select text with Shift+arrows, typing replaces the selection
+jirutka/zsh-shift-select
+
 # Syntax highlighting for Zsh
 zsh-users/zsh-syntax-highlighting
 

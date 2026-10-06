@@ -52,6 +52,14 @@ config.window_background_image = os.getenv('HOME') .. '/doom_white_terminal_bg.j
 
 config.keys = {
     {key="b", mods="OPT", action=wezterm.action.EmitEvent('toggle-background')},
+    -- Desktop-style line editing (see bindings in .zshrc)
+    {key="LeftArrow", mods="CMD", action=wezterm.action.SendString('\x01')},           -- line start
+    {key="RightArrow", mods="CMD", action=wezterm.action.SendString('\x05')},          -- line end
+    {key="LeftArrow", mods="CMD|SHIFT", action=wezterm.action.SendString('\x1b[1;2H')}, -- select to line start
+    {key="RightArrow", mods="CMD|SHIFT", action=wezterm.action.SendString('\x1b[1;2F')},-- select to line end
+    {key="Backspace", mods="CMD", action=wezterm.action.SendString('\x15')},           -- delete to line start
+    {key="Backspace", mods="OPT", action=wezterm.action.SendString('\x17')},           -- delete previous word
+    {key="z", mods="CMD", action=wezterm.action.SendString('\x1f')},                   -- undo
 }
 
 -- Toggle background configuration between

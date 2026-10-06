@@ -34,6 +34,21 @@ bindkey '^ ' autosuggest-accept
 bindkey '^[[A' history-substring-search-up
 bindkey '^[[B' history-substring-search-down
 
+# Desktop-style line editing (Cmd/Shift keys are mapped in wezterm.lua)
+bindkey -e
+# Option+left/right: jump between words
+bindkey '^[[1;3D' backward-word
+bindkey '^[[1;3C' forward-word
+# Home/End
+bindkey '^[[H' beginning-of-line
+bindkey '^[[F' end-of-line
+# Fn+Delete: delete forward
+bindkey '^[[3~' delete-char
+# Ctrl+U (sent by Cmd+Backspace): delete to line start, not the whole line
+bindkey '^U' backward-kill-line
+# Word jumps stop at / . - _ (like in a text editor)
+WORDCHARS=''
+
 # Load enterprise zshrc if it exists
 [ -f ~/.zshrc_enterprise ] && source ~/.zshrc_enterprise
 
