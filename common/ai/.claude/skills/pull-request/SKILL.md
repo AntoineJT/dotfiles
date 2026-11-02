@@ -79,7 +79,7 @@ Auth check + repo resolution per the table, then:
 BRANCH=$(git branch --show-current)
 ```
 
-Pick the **target branch** (do not assume the default branch): if the source looks like a sub-branch of another in-flight branch, the target is usually that parent. Determine the merge-base parent (`git log --decorate`, the tracking branch, or the branch it was cut from); if ambiguous, ask. Default to the repo's default branch only when nothing else fits.
+Pick the **target branch** (do not assume the default branch): if the source looks like a sub-branch of another in-flight branch, the target is usually that parent. Determine the merge-base parent (`git log --decorate`, the tracking branch, or the branch it was cut from); if ambiguous, ask. Default to the repo's default branch only when nothing else fits. A PR targeting another in-flight PR's branch is a **stack**: open it against that parent, and use the `pr-stack` skill to map, rebase or retarget the stack later (after the parent merges, for instance).
 
 Ensure the branch is pushed (PR creation needs it on the remote):
 
