@@ -50,7 +50,6 @@ cask "bruno" # postman alternative
 cask "dbeaver-community" # GUI DB client
 cask "fork" # GUI git client
 cask "jetbrains-toolbox" # JetBrains IDE manager
-cask "visual-studio-code" # GUI text editor
 cask "zed" # text editor, great for developing in rust
 
 # Documentation/Notes Tools
