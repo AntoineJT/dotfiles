@@ -1,9 +1,11 @@
 # Repositories
+tap "Xoshbin/asyar", trusted: { cask: "asyar" }
 # tap "TheBoredTeam/boring-notch"
 
 # System
 cask "monitorcontrol" # control monitor brightness/contrast/volume
 cask "openmtp" # connect android phone to mac
+cask "Xoshbin/asyar/asyar" # spotlight replacement (FOSS alfred/raycast alternative)
 cask "wine-stable" # needs rosetta2
 
 # TODO enforce rosetta2 installation in Makefile?
