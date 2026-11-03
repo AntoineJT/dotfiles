@@ -10,3 +10,5 @@
 # for testing blimp
 **/.sysroot/
 **/work
+
+**/.claude/settings.local.json
