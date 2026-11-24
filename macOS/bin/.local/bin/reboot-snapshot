@@ -1,0 +1,540 @@
+#!/usr/bin/env python3
+"""reboot-snapshot — sauvegarde et restaure les sessions Claude Code ouvertes
+dans WezTerm et les onglets Firefox, pour survivre à un redémarrage.
+
+  reboot-snapshot dump                 # avant le reboot
+  reboot-snapshot show                 # relire ce qui a été sauvegardé
+  reboot-snapshot restore --dry-run    # voir ce qui serait relancé
+  reboot-snapshot restore              # rouvre les onglets WezTerm (claude --resume …)
+  reboot-snapshot restore-firefox      # remet la session Firefox sauvegardée (Firefox fermé)
+
+Les snapshots vont dans ~/.local/state/reboot-snapshot/<horodatage>/ (lien `latest`).
+Chacun contient aussi RESTORE.md : les commandes à taper à la main si ce script
+ne tourne plus après la mise à jour.
+"""
+import argparse, datetime, glob, json, os, shlex, shutil, subprocess, sys, time
+from pathlib import Path
+from urllib.parse import unquote, urlparse
+
+HOME = Path.home()
+STATE = HOME / ".local/state/reboot-snapshot"
+CLAUDE_SESSIONS = HOME / ".claude/sessions"
+CLAUDE_PROJECTS = HOME / ".claude/projects"
+FF_ROOT = HOME / "Library/Application Support/Firefox"
+FF_BIN = "/Applications/Firefox.app/Contents/MacOS/firefox"
+# Flags replayed on resume; everything else in the original command line is dropped.
+REPLAY_ALONE = {"--chrome", "--dangerously-skip-permissions", "--verbose", "--ide"}
+# Only flags whose value never holds a space: `ps` cuts `--settings '{"a": 1}'` or a
+# path with a space, and a cut value would make the resumed claude exit at once.
+REPLAY_WITH_VALUE = {"--model", "--permission-mode", "--agent"}
+C_LOCALE = {**os.environ, "LC_ALL": "C"}  # ps prints dates in the user's locale otherwise
+
+
+def run(cmd, env=None):
+    return subprocess.run(cmd, capture_output=True, text=True, check=True, env=env).stdout
+
+
+def wezterm():
+    return shutil.which("wezterm") or "/Applications/WezTerm.app/Contents/MacOS/wezterm"
+
+
+# ---------------------------------------------------------------- Claude / WezTerm
+
+def live_claude_sessions():
+    """Live sessions: (tty -> [interactive records], [live records with no tty or not interactive])."""
+    by_tty, others = {}, []
+    for f in sorted(CLAUDE_SESSIONS.glob("*.json")):
+        try:
+            s = json.loads(f.read_text())
+        except (OSError, json.JSONDecodeError):
+            continue
+        # Another claude version's format: skip that record, never every session.
+        if not isinstance(s, dict) or not isinstance(s.get("sessionId"), str) \
+                or not isinstance(s.get("pid"), int):
+            continue
+        if not isinstance(s.get("cwd"), str):
+            s["cwd"] = ""  # restore then reports the folder as missing
+        pid = s["pid"]
+        try:
+            ps = run(["ps", "-o", "tty=,args=", "-p", str(pid)]).strip()
+            lstart = " ".join(run(["ps", "-o", "lstart=", "-p", str(pid)], env=C_LOCALE).split())
+        except subprocess.CalledProcessError:
+            continue  # stale file, process gone
+        # A stale file whose pid now belongs to another claude: start times differ.
+        # startedAt (epoch ms) lands 1-2 s after the process start; procStart is not
+        # comparable (it was an hour off ps after a DST change).
+        verified = False
+        try:
+            started = time.mktime(time.strptime(lstart, "%a %b %d %H:%M:%S %Y"))
+            if isinstance(s.get("startedAt"), (int, float)):
+                if abs(s["startedAt"] / 1000 - started) > 60:
+                    continue
+                verified = True
+        except ValueError:
+            pass  # unknown ps date format: keep the session rather than lose it
+        tty, _, args = ps.partition(" ")
+        # Without a start time to compare, at least the command must be claude's
+        # (a renamed alias such as `cc` passes only through the start time).
+        if not verified and "claude" not in args:
+            continue
+        s["args"] = args.strip()
+        if s.get("kind") != "interactive" or tty in ("", "??"):
+            others.append(s)
+        else:
+            by_tty.setdefault("/dev/" + tty, []).append(s)
+    return by_tty, others
+
+
+def extra_flags(args):
+    """Flags worth replaying on resume, read from `ps` output.
+
+    `ps` loses the original quoting, so the args cannot be parsed back reliably
+    (a prompt with an apostrophe breaks shlex). Only an allow-list is kept:
+    positionals (the first prompt, node's script path) and one-shot flags such as
+    --fork-session would make the resumed session do something new.
+    """
+    toks, keep, i = args.split(), [], 0
+    while i < len(toks):
+        a = toks[i]
+        if a in REPLAY_ALONE:
+            keep.append(a)
+        elif a in REPLAY_WITH_VALUE and i + 1 < len(toks) and not toks[i + 1].startswith("-"):
+            keep += [a, toks[i + 1]]
+            i += 1
+        elif "=" in a and a.split("=")[0] in REPLAY_WITH_VALUE:
+            keep.append(a)
+        i += 1
+    return keep
+
+
+def transcript_exists(sid):
+    return bool(glob.glob(str(CLAUDE_PROJECTS / "*" / f"{sid}.jsonl")))
+
+
+def dump_wezterm(snap):
+    by_tty, others = live_claude_sessions()
+    # Every live session first: whatever fails below, RESTORE.md and `restore` still have them.
+    write_unmatched(snap, others + [s for ss in by_tty.values() for s in ss])
+    panes = json.loads(run([wezterm(), "cli", "list", "--format", "json"]))
+    tabs = []
+    # `cli list` gives each window's tabs in their visual order; tab_id is creation order.
+    for p in sorted(panes, key=lambda p: p["window_id"]):
+        cwd = unquote(urlparse(p.get("cwd") or "").path) or str(HOME)
+        base = {"window_id": p["window_id"], "tab_id": p["tab_id"], "pane_id": p["pane_id"],
+                "title": p.get("title", ""), "cwd": cwd}
+        # Several claude on one tty (one suspended with Ctrl-Z): each gets its own tab back.
+        for s in by_tty.pop(p.get("tty_name"), None) or [None]:
+            entry = dict(base)
+            if s:
+                sid = s["sessionId"]
+                entry.update(cwd=s.get("cwd", cwd), session_id=sid, name=s.get("name") or "",
+                             flags=extra_flags(s["args"]), transcript_found=transcript_exists(sid),
+                             status=s.get("status"))
+            tabs.append(entry)
+    (snap / "wezterm.json").write_text(json.dumps(tabs, indent=2, ensure_ascii=False))
+    # Live sessions with no WezTerm tab of their own (tmux, another terminal, background).
+    unmatched = write_unmatched(snap, others + [s for ss in by_tty.values() for s in ss])
+    return tabs, unmatched
+
+
+def write_unmatched(snap, sessions):
+    unmatched = [{"session_id": s["sessionId"], "name": s.get("name") or "", "cwd": s.get("cwd", ""),
+                  "kind": s.get("kind"), "flags": extra_flags(s["args"]),
+                  "transcript_found": transcript_exists(s["sessionId"])}
+                 for s in sessions]
+    (snap / "unmatched.json").write_text(json.dumps(unmatched, indent=2, ensure_ascii=False))
+    return unmatched
+
+
+def resume_cmd(t):
+    target = t["session_id"] if t.get("transcript_found") else (t.get("name") or t["session_id"])
+    return ["claude", "--resume", target, *t.get("flags", [])]
+
+
+def restore_wezterm(snap, dry_run, include_shells, again=False):
+    if (snap / "wezterm.json").exists():
+        tabs = json.loads((snap / "wezterm.json").read_text())
+    elif (snap / "unmatched.json").exists():
+        # The dump could not read WezTerm's layout: reopen every recorded session in this window.
+        print("Disposition WezTerm absente du snapshot : toutes les sessions s'ouvrent ici.")
+        tabs = [{**u, "window_id": 0, "tab_id": i, "pane_id": -1 - i, "title": u["name"]}
+                for i, u in enumerate(json.loads((snap / "unmatched.json").read_text()))
+                if u.get("kind") == "interactive"]  # background sessions stay in RESTORE.md
+    else:
+        sys.exit(f"Aucune session enregistrée dans ce snapshot : voir {snap / 'RESTORE.md'}")
+    # Sessions already reopened by a previous run: a rerun must not resume them twice.
+    done_file = snap / "restored.json"
+    done = set() if again or not done_file.exists() else set(json.loads(done_file.read_text()))
+    shell = os.environ.get("SHELL", "/bin/zsh")
+    wz = wezterm()
+    new_window_for = {}  # old window_id -> new window_id (None: current window)
+    seen, failed = set(), []
+    for t in tabs:
+        sid = t.get("session_id")
+        if not sid and not include_shells:
+            continue
+        if sid:
+            if sid in seen:  # two tabs on one session: resume it once
+                print(f"  (doublon ignoré : {t.get('name')} {sid[:8]})")
+                continue
+            seen.add(sid)
+            if sid in done:
+                print(f"  (déjà rouvert : {t.get('name')} {sid[:8]})")
+                continue
+            cmd = shlex.join(resume_cmd(t))
+            # Keep the tab alive with a shell once claude exits.
+            prog = [shell, "-l", "-i", "-c", f"{cmd}; exec {shell} -l"]
+            label = f"claude {t.get('name') or ''} ({sid[:8]})"
+        else:
+            key = f"pane:{t['pane_id']}"
+            if key in done:
+                continue
+            prog, cmd, label = [], "", f"shell  {t['title']}"
+        key = sid or f"pane:{t['pane_id']}"
+        print(f"  {label:60s} {t['cwd']}" + (f"\n      $ {cmd}" if cmd else ""))
+        if not t["cwd"] or not Path(t["cwd"]).is_dir():  # Path("") would mean "."
+            print(f"    ! dossier absent, ignoré : {t['cwd']}")
+            failed.append(f"{label} : dossier absent {t['cwd']}")
+            continue
+        if dry_run:
+            continue
+        old_w = t["window_id"]
+        spawn = [wz, "cli", "spawn", "--cwd", t["cwd"]]
+        if new_window_for.get(old_w) is not None:
+            spawn += ["--window-id", str(new_window_for[old_w])]
+        elif old_w not in new_window_for and new_window_for:  # another original window
+            spawn += ["--new-window"]
+        if prog:
+            spawn += ["--", *prog]
+        try:
+            pane = run(spawn).strip()
+        except (subprocess.CalledProcessError, OSError) as e:
+            err = (getattr(e, "stderr", None) or str(e)).strip()
+            print(f"    ! échec : {err}")
+            failed.append(f"{label} : {err}")
+            continue
+        done.add(key)
+        done_file.write_text(json.dumps(sorted(done)))
+        if old_w not in new_window_for:
+            new_window_for[old_w] = None
+            try:
+                for p in json.loads(run([wz, "cli", "list", "--format", "json"])):
+                    if str(p["pane_id"]) == pane:
+                        new_window_for[old_w] = p["window_id"]
+            except (subprocess.CalledProcessError, OSError, json.JSONDecodeError):
+                pass
+        time.sleep(0.7)  # don't start 30 claude processes in the same instant
+    if failed:
+        print("\nÉchecs (relance `reboot-snapshot restore` pour ne réessayer que ceux-là) :")
+        for f in failed:
+            print(f"  - {f}")
+    if not dry_run:
+        print("\nUn onglet retombé sur un shell (claude a échoué au démarrage) compte comme rouvert :"
+              "\nrelance-le à la main, ou `reboot-snapshot restore --again`.")
+    if failed:
+        sys.exit(1)
+
+
+# ---------------------------------------------------------------- Firefox
+
+def mozlz4_read(path):
+    """Decode Firefox's mozLz4 files (magic + size + raw LZ4 block), no dependency."""
+    data = Path(path).read_bytes()
+    if data[:8] != b"mozLz40\0":
+        raise ValueError(f"{path}: not a mozLz4 file")
+    size = int.from_bytes(data[8:12], "little")
+    src, out, i = data[12:], bytearray(), 0
+    while i < len(src):
+        tok = src[i]; i += 1
+        lit = tok >> 4
+        if lit == 15:
+            while True:
+                b = src[i]; i += 1; lit += b
+                if b != 255:
+                    break
+        out += src[i:i + lit]; i += lit
+        if i >= len(src):
+            break
+        off = src[i] | (src[i + 1] << 8); i += 2
+        ml = tok & 15
+        if ml == 15:
+            while True:
+                b = src[i]; i += 1; ml += b
+                if b != 255:
+                    break
+        ml += 4
+        start = len(out) - off
+        for k in range(ml):
+            out.append(out[start + k])
+    if len(out) != size:
+        raise ValueError(f"{path}: decoded {len(out)} bytes, expected {size}")
+    return json.loads(out)
+
+
+SESSION_FILES = ["sessionstore.jsonlz4", "sessionstore-backups/recovery.jsonlz4",
+                 "sessionstore-backups/recovery.baklz4", "sessionstore-backups/previous.jsonlz4"]
+
+
+def firefox_profiles():
+    """(profile dir, its session files newest first). A running Firefox renames
+    recovery.jsonlz4 to recovery.baklz4 every 15 s, so any of them may vanish."""
+    profs = []
+    for d in sorted((FF_ROOT / "Profiles").glob("*")):
+        cands = []
+        for rel in SESSION_FILES:
+            try:
+                cands.append((d.joinpath(rel).stat().st_mtime, rel))
+            except OSError:
+                pass
+        if cands:
+            profs.append((d, [d / rel for _, rel in sorted(cands, reverse=True)]))
+    return profs
+
+
+def firefox_running(profile=None):
+    """Any Firefox, or one holding `profile` open (another profile or ZAP's browser may run)."""
+    if profile is None:
+        return subprocess.run(["pgrep", "-x", "firefox"], capture_output=True).returncode == 0
+    lock = Path(profile) / ".parentlock"
+    return subprocess.run(["lsof", "-t", str(lock)], capture_output=True).returncode == 0
+
+
+def dump_firefox(snap):
+    """Returns ([(profile, tabs, windows)], [problems]); one profile failing spares the others."""
+    summary, problems = [], []
+    for prof, cands in firefox_profiles():
+        dest = snap / "firefox" / prof.name
+        dest.mkdir(parents=True, exist_ok=True)
+        bk = prof / "sessionstore-backups"
+        if bk.is_dir():
+            try:
+                shutil.copytree(bk, dest / "sessionstore-backups", dirs_exist_ok=True,
+                                ignore=shutil.ignore_patterns("*.tmp"))
+            except (shutil.Error, OSError) as e:
+                print(f"  ! {prof.name}: copie partielle des sauvegardes ({e})")
+        session, tried = None, []
+        tmp = dest / "session.jsonlz4.tmp"
+        for src in cands:  # newest first, falling back when one vanished or is unreadable
+            try:
+                shutil.copy2(src, tmp)
+                session = mozlz4_read(tmp)
+                tmp.rename(dest / "session.jsonlz4")  # only a readable file can be restored
+                break
+            except Exception as e:
+                tried.append(f"{src.name}: {e}")
+        if tmp.exists():
+            tmp.unlink()
+        if session is None:
+            problems.append(f"Firefox {prof.name} : aucune session lisible ({'; '.join(tried)})")
+            continue
+        windows, open_windows = [], session.get("windows") or []
+        if not open_windows and session.get("_closedWindows"):
+            # macOS: closing the last window leaves Firefox running with no open window,
+            # and Firefox's own restore would then reopen nothing.
+            print(f"  ! {prof.name}: dernière fenêtre fermée, ses onglets sont pris quand même."
+                  " Rouvre-la (Historique → Fenêtres récemment fermées) avant le reboot.")
+            open_windows = session["_closedWindows"][:1]
+        for w in open_windows:
+            tabs = []
+            for t in w.get("tabs", []):
+                ents = t.get("entries") or []
+                if not ents:
+                    continue
+                e = ents[max(0, min(t.get("index", len(ents)) - 1, len(ents) - 1))]
+                tabs.append({"url": e.get("url"), "title": e.get("title", ""),
+                             "pinned": t.get("pinned", False)})
+            if tabs:
+                windows.append(tabs)
+        (dest / "tabs.json").write_text(json.dumps(windows, indent=2, ensure_ascii=False))
+        lines = []
+        for n, w in enumerate(windows, 1):
+            lines.append(f"## Fenêtre {n} ({len(w)} onglets)")
+            lines += [f"- [{t['title'] or t['url']}]({t['url']})" for t in w]
+            lines.append("")
+        (dest / "tabs.md").write_text("\n".join(lines))
+        summary.append((prof.name, sum(len(w) for w in windows), len(windows)))
+    return summary, problems
+
+
+def open_urls(profile, windows):
+    """Reopen each saved window's tabs in `profile`, without blocking on Firefox."""
+    base = [FF_BIN, "--profile", str(profile)]
+    for w in windows:
+        urls = [t["url"] for t in w if t["url"] and not t["url"].startswith("about:")]
+        if not urls:
+            continue
+        cmds = [("--new-window", urls[0])] + [("--new-tab", u) for u in urls[1:]]
+        if not firefox_running(profile):
+            # Started directly, firefox stays in the foreground until it quits.
+            subprocess.Popen(base + list(cmds.pop(0)),
+                             stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            # The first launch after a macOS upgrade can be slow (Gatekeeper, migration).
+            for _ in range(240):
+                if firefox_running(profile):
+                    break
+                time.sleep(0.5)
+            else:
+                print(f"  ! Firefox n'a pas démarré sur {profile.name} : onglets non rouverts"
+                      " (liste dans tabs.md)")
+                return
+            time.sleep(3)  # let it accept remote commands
+        for flag, u in cmds:  # remote commands to the running instance return at once
+            try:
+                subprocess.run(base + [flag, u], timeout=30, capture_output=True)
+            except subprocess.TimeoutExpired:
+                print(f"  ! délai dépassé pour {u}")
+        time.sleep(1)
+
+
+def restore_firefox(snap, profile, urls_only):
+    roots = sorted((snap / "firefox").glob("*"))
+    if profile:
+        roots = [r for r in roots if r.name == profile]
+    if not roots:
+        sys.exit("Aucune sauvegarde Firefox dans ce snapshot.")
+    if urls_only:
+        for r in roots:
+            if not (r / "tabs.json").exists():  # decoding failed at dump time
+                print(f"  ! {r.name}: aucune session lisible au dump, copie brute dans"
+                      f" {r / 'sessionstore-backups'}")
+                continue
+            open_urls(FF_ROOT / "Profiles" / r.name, json.loads((r / "tabs.json").read_text()))
+        return
+    if any(firefox_running(FF_ROOT / "Profiles" / r.name) for r in roots):
+        sys.exit("Ferme Firefox (Cmd+Q) avant : il réécrirait la session à la fermeture.")
+    restored = 0
+    for r in roots:
+        prof = FF_ROOT / "Profiles" / r.name
+        # The dump keeps session.jsonlz4 only once it decoded: never put back a broken file.
+        if not (r / "session.jsonlz4").exists() or not prof.is_dir():
+            print(f"  ! {r.name}: rien à remettre (session illisible au dump, ou profil absent)")
+            continue
+        target = prof / "sessionstore.jsonlz4"
+        if target.exists():
+            shutil.copy2(target, prof / f"sessionstore.jsonlz4.before-restore-{int(time.time())}")
+        shutil.copy2(r / "session.jsonlz4", target)
+        print(f"  {r.name}: session remise en place ({target})")
+        restored += 1
+    if restored:
+        print("Relance Firefox. Si les onglets ne reviennent pas d'eux-mêmes"
+              " (browser.startup.page ≠ 3) : Historique → Restaurer la session précédente.")
+
+
+# ---------------------------------------------------------------- CLI
+
+def snapshot_dir(arg):
+    p = Path(arg) if arg else STATE / "latest"
+    if arg and not p.exists():
+        p = STATE / arg  # a bare timestamp, as listed in the snapshots folder
+    if not p.exists():
+        sys.exit(f"Snapshot introuvable : {p}")
+    return p.resolve()
+
+
+def unmatched_heading(snap):
+    """Must say what `restore` will really do with them, or the user resumes them twice."""
+    if (snap / "wezterm.json").exists():
+        return "Sessions Claude hors onglet WezTerm (non rouvertes par `restore`, à reprendre à la main)"
+    return ("Sessions Claude (disposition WezTerm illisible : `restore` rouvre les interactives"
+            " dans la fenêtre courante, ne les reprends pas aussi à la main)")
+
+
+def write_restore_md(snap, tabs, unmatched, ff, errors):
+    md = [f"# Snapshot {snap.name}", ""]
+    if errors:
+        md += ["## ⚠️ Snapshot incomplet", ""] + [f"- {e}" for e in errors] + [""]
+    md += ["## Sessions Claude Code (WezTerm)", "", "À la main, si le script ne tourne plus :", ""]
+    seen = set()
+    for t in tabs:
+        if "session_id" in t and t["session_id"] not in seen:
+            seen.add(t["session_id"])
+            md.append(f"- **{t.get('name') or '(sans nom)'}** — `cd {shlex.quote(t['cwd'])} && "
+                      f"{shlex.join(resume_cmd(t))}`"
+                      + ("" if t.get("transcript_found") else "  ⚠️ transcript introuvable"))
+    if unmatched:
+        md += ["", "## " + unmatched_heading(snap), ""]
+        md += [f"- **{u['name'] or '(sans nom)'}** ({u['kind']}) — `cd {shlex.quote(u['cwd'])} && "
+               f"{shlex.join(resume_cmd(u))}`" for u in unmatched]
+    md += ["", "## Autres onglets WezTerm", ""]
+    md += [f"- {t['title']} — `{t['cwd']}`" for t in tabs if "session_id" not in t]
+    md += ["", "## Firefox", "", "Firefox restaure seul la session (browser.startup.page=3).",
+           "Sinon : Historique → Restaurer la session précédente, ou `reboot-snapshot restore-firefox`.",
+           "Liste des onglets : firefox/<profil>/tabs.md", ""]
+    md += [f"- {n}: {c} onglets dans {w} fenêtres" for n, c, w in ff]
+    (snap / "RESTORE.md").write_text("\n".join(md) + "\n")
+
+
+def cmd_dump(a):
+    stamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    snap, n = STATE / stamp, 1
+    while snap.exists():  # two dumps in the same second
+        snap, n = STATE / f"{stamp}-{n}", n + 1
+    snap.mkdir(parents=True)
+    errors, tabs, unmatched, ff = [], [], [], []
+    # Each part is independent: one failing must not cost the others, nor `latest`.
+    try:
+        tabs, unmatched = dump_wezterm(snap)
+    except Exception as e:
+        errors.append(f"WezTerm : {e}")
+        if (snap / "unmatched.json").exists():  # sessions found before WezTerm failed
+            unmatched = json.loads((snap / "unmatched.json").read_text())
+    claude = [t for t in tabs if "session_id" in t]
+    print(f"WezTerm : {len(tabs)} onglets, dont {len(claude)} sessions Claude")
+    for t in claude:
+        warn = "" if t["transcript_found"] else "  ⚠️ transcript introuvable, reprise par nom"
+        busy = "  ⚠️ en cours de travail" if t.get("status") == "busy" else ""
+        print(f"  - {t.get('name') or '(sans nom)':45s} {t['session_id']}{warn}{busy}")
+    if unmatched:
+        print(unmatched_heading(snap) + " :")
+        for u in unmatched:
+            print(f"  - {u['name'] or '(sans nom)':45s} {u['session_id']}  ({u['kind']})")
+    try:
+        ff, ff_problems = dump_firefox(snap)
+        errors += ff_problems
+    except Exception as e:
+        errors.append(f"Firefox : {e}")
+    for name, count, wins in ff:
+        print(f"Firefox {name} : {count} onglets dans {wins} fenêtres")
+    write_restore_md(snap, tabs, unmatched, ff, errors)
+    latest = STATE / "latest"
+    if latest.is_symlink() or latest.exists():
+        latest.unlink()
+    latest.symlink_to(snap.name)
+    print(f"\nSnapshot : {snap}\nAide-mémoire : {snap / 'RESTORE.md'}")
+    if errors:
+        print("\n⚠️ Snapshot incomplet :")
+        for e in errors:
+            print(f"  - {e}")
+        sys.exit(1)
+
+
+def main():
+    ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    sub = ap.add_subparsers(dest="cmd", required=True)
+    sub.add_parser("dump")
+    s = sub.add_parser("show"); s.add_argument("snapshot", nargs="?")
+    r = sub.add_parser("restore")
+    r.add_argument("snapshot", nargs="?")
+    r.add_argument("--dry-run", action="store_true")
+    r.add_argument("--with-shells", action="store_true",
+                   help="rouvre aussi les onglets sans Claude (shell dans le même dossier)")
+    r.add_argument("--again", action="store_true",
+                   help="rouvre aussi les sessions déjà rouvertes par un restore précédent")
+    f = sub.add_parser("restore-firefox")
+    f.add_argument("snapshot", nargs="?")
+    f.add_argument("--profile")
+    f.add_argument("--urls", action="store_true",
+                   help="rouvre les URL une à une au lieu de remettre le fichier de session")
+    a = ap.parse_args()
+    if a.cmd == "dump":
+        cmd_dump(a)
+    elif a.cmd == "show":
+        print((snapshot_dir(a.snapshot) / "RESTORE.md").read_text())
+    elif a.cmd == "restore":
+        restore_wezterm(snapshot_dir(a.snapshot), a.dry_run, a.with_shells, a.again)
+    elif a.cmd == "restore-firefox":
+        restore_firefox(snapshot_dir(a.snapshot), a.profile, a.urls)
+
+
+if __name__ == "__main__":
+    main()
